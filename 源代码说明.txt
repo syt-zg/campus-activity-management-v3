@@ -19,7 +19,8 @@
 - tests/ui-render.js：前端渲染测试（jsdom，20 项断言，可复跑）
 - tests/perf-compare.js：写入合并前后对比（同负载对比同步写与合并写）
 - analysis/：模拟数据包的数据发现脚本、报告与字段映射表（只读，不参与运行）
-- docs：V3.0 变更说明与验证记录
+- docs：V3-CHANGES（变更清单）、V3-VERIFY（验证记录）、V3-AI-USAGE（AI 使用与工程过程）、GIT-提交说明
+- README.md：总入口，含运行说明、默认账号、验证命令与文档索引
 - data：首次运行使用的初始示例数据，不是用户当前正在使用的数据
 
 运行时数据（Electron userData/data 目录）

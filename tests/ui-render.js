@@ -4,13 +4,23 @@
  * 目的：后端接口通了不代表页面能渲染。此脚本在 jsdom 里真实执行前端脚本，
  * 逐个视图检查是否抛异常、关键元素是否渲染出来。
  *
- * 前置：先启动服务（默认 http://127.0.0.1:3121），再运行：
+ * 前置：先启动服务（默认 http://127.0.0.1:3000），再运行：
  *   NODE_PATH=<jsdom 所在 node_modules> node tests/ui-render.js [baseUrl]
  */
-const { JSDOM, VirtualConsole } = require('jsdom');
-
-const BASE = process.argv[2] || 'http://127.0.0.1:3121';
+const BASE = process.argv[2] || 'http://127.0.0.1:3000';
 const SCRIPTS = ['api.js', 'storage.js', 'auth.js', 'student.js', 'teacher.js', 'admin.js', 'qa-engine.js', 'qa.js', 'app.js'];
+
+// jsdom 是可选测试依赖，未安装时给出明确提示并跳过，而不是抛一个看不懂的模块错误
+let JSDOM, VirtualConsole;
+try {
+  ({ JSDOM, VirtualConsole } = require('jsdom'));
+} catch {
+  console.log('未检测到 jsdom，已跳过前端渲染测试。');
+  console.log('如需运行：在任意目录执行  npm i jsdom  然后设置 NODE_PATH 指向该 node_modules，例如');
+  console.log('  NODE_PATH=<仓库>/node_modules node tests/ui-render.js http://127.0.0.1:3000');
+  console.log('说明：jsdom 只用于本测试，不是系统运行依赖，未写入 package.json。');
+  process.exit(0);
+}
 
 let pass = 0, fail = 0;
 const log = [];
