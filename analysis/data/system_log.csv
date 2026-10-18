@@ -1,0 +1,793 @@
+﻿log_id,event_ts,request_id,level,component,event_code,activity_id,elapsed_ms,message
+L000706,2026-09-21 07:46:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000642,2026-09-21 08:02:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000663,2026-09-21 08:32:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000001,2026-09-21 09:00:13,R0000003,WARN,registration_api,SLOW_REQUEST,A001,1706,registration request exceeded latency threshold
+L000002,2026-09-21 09:00:18,R0000004,WARN,registration_api,SLOW_REQUEST,A001,1343,registration request exceeded latency threshold
+L000003,2026-09-21 09:00:20,R0000005,WARN,registration_api,SLOW_REQUEST,A001,1811,registration request exceeded latency threshold
+L000073,2026-09-21 09:00:25,R0000195,INFO,registration_api,REQUEST_DONE,A001,493,registration request completed
+L000004,2026-09-21 09:00:28,R0000007,WARN,registration_api,SLOW_REQUEST,A001,1431,registration request exceeded latency threshold
+L000005,2026-09-21 09:01:45,R0000018,WARN,registration_api,SLOW_REQUEST,A001,1815,registration request exceeded latency threshold
+L000006,2026-09-21 09:02:22,R0000021,WARN,registration_api,SLOW_REQUEST,A001,1333,registration request exceeded latency threshold
+L000007,2026-09-21 09:02:33,R0000023,INFO,registration_api,REQUEST_DONE,A001,680,registration request completed
+L000008,2026-09-21 09:02:39,R0000025,ERROR,registration_api,E409,A001,1579,registration request failed
+L000009,2026-09-21 09:02:45,R0000026,WARN,registration_api,SLOW_REQUEST,A001,2125,registration request exceeded latency threshold
+L000010,2026-09-21 09:02:48,R0000028,WARN,registration_api,SLOW_REQUEST,A001,1393,registration request exceeded latency threshold
+L000011,2026-09-21 09:02:57,R0000030,WARN,registration_api,SLOW_REQUEST,A001,1436,registration request exceeded latency threshold
+L000012,2026-09-21 09:03:18,R0000032,WARN,registration_api,SLOW_REQUEST,A001,1316,registration request exceeded latency threshold
+L000013,2026-09-21 09:03:40,R0000035,WARN,registration_api,SLOW_REQUEST,A001,1723,registration request exceeded latency threshold
+L000014,2026-09-21 09:03:43,R0000036,WARN,registration_api,SLOW_REQUEST,A001,1682,registration request exceeded latency threshold
+L000015,2026-09-21 09:03:46,R0000037,WARN,registration_api,SLOW_REQUEST,A001,1358,registration request exceeded latency threshold
+L000016,2026-09-21 09:03:53,R0000038,WARN,registration_api,SLOW_REQUEST,A001,1450,registration request exceeded latency threshold
+L000017,2026-09-21 09:03:53,R0000039,WARN,registration_api,SLOW_REQUEST,A001,1409,registration request exceeded latency threshold
+L000018,2026-09-21 09:04:09,R0000040,ERROR,registration_api,E409,A001,1834,registration request failed
+L000019,2026-09-21 09:04:47,R0000044,WARN,registration_api,SLOW_REQUEST,A001,1350,registration request exceeded latency threshold
+L000020,2026-09-21 09:04:53,R0000046,WARN,registration_api,SLOW_REQUEST,A001,1397,registration request exceeded latency threshold
+L000021,2026-09-21 09:05:25,R0000050,WARN,registration_api,SLOW_REQUEST,A001,1789,registration request exceeded latency threshold
+L000022,2026-09-21 09:05:26,R0000051,WARN,registration_api,SLOW_REQUEST,A001,1597,registration request exceeded latency threshold
+L000023,2026-09-21 09:05:35,R0000053,WARN,registration_api,SLOW_REQUEST,A001,2496,registration request exceeded latency threshold
+L000024,2026-09-21 09:05:51,R0000056,INFO,registration_api,REQUEST_DONE,A001,1204,registration request completed
+L000025,2026-09-21 09:05:53,R0000058,WARN,registration_api,SLOW_REQUEST,A001,1410,registration request exceeded latency threshold
+L000026,2026-09-21 09:06:10,R0000060,WARN,registration_api,SLOW_REQUEST,A001,1533,registration request exceeded latency threshold
+L000027,2026-09-21 09:06:26,R0000062,WARN,registration_api,SLOW_REQUEST,A001,2129,registration request exceeded latency threshold
+L000028,2026-09-21 09:06:31,R0000063,WARN,registration_api,SLOW_REQUEST,A001,1472,registration request exceeded latency threshold
+L000029,2026-09-21 09:07:11,R0000067,WARN,registration_api,SLOW_REQUEST,A001,1446,registration request exceeded latency threshold
+L000030,2026-09-21 09:07:48,R0000073,WARN,registration_api,SLOW_REQUEST,A001,1392,registration request exceeded latency threshold
+L000031,2026-09-21 09:07:58,R0000074,WARN,registration_api,SLOW_REQUEST,A001,1830,registration request exceeded latency threshold
+L000032,2026-09-21 09:08:14,R0000077,ERROR,registration_api,E409,A001,696,registration request failed
+L000033,2026-09-21 09:08:56,R0000081,WARN,registration_api,SLOW_REQUEST,A001,1369,registration request exceeded latency threshold
+L000034,2026-09-21 09:09:02,R0000082,WARN,registration_api,SLOW_REQUEST,A001,1941,registration request exceeded latency threshold
+L000035,2026-09-21 09:09:04,R0000083,WARN,registration_api,SLOW_REQUEST,A001,1611,registration request exceeded latency threshold
+L000036,2026-09-21 09:09:22,R0000087,WARN,registration_api,SLOW_REQUEST,A001,1372,registration request exceeded latency threshold
+L000037,2026-09-21 09:09:37,R0000089,WARN,registration_api,SLOW_REQUEST,A001,1561,registration request exceeded latency threshold
+L000038,2026-09-21 09:09:38,R0000090,INFO,registration_api,REQUEST_DONE,A001,991,registration request completed
+L000039,2026-09-21 09:09:47,R0000091,WARN,registration_api,SLOW_REQUEST,A001,1848,registration request exceeded latency threshold
+L000040,2026-09-21 09:09:50,R0000092,ERROR,registration_api,E409,A001,1198,registration request failed
+L000041,2026-09-21 09:09:58,R0000093,WARN,registration_api,SLOW_REQUEST,A001,1477,registration request exceeded latency threshold
+L000042,2026-09-21 09:10:05,R0000095,INFO,registration_api,REQUEST_DONE,A001,873,registration request completed
+L000043,2026-09-21 09:10:18,R0000098,WARN,registration_api,SLOW_REQUEST,A001,1670,registration request exceeded latency threshold
+L000044,2026-09-21 09:10:22,R0000099,ERROR,registration_api,E409,A001,1420,registration request failed
+L000045,2026-09-21 09:10:31,R0000101,WARN,registration_api,SLOW_REQUEST,A001,1529,registration request exceeded latency threshold
+L000046,2026-09-21 09:10:39,R0000102,WARN,registration_api,SLOW_REQUEST,A001,1410,registration request exceeded latency threshold
+L000047,2026-09-21 09:11:26,R0000106,WARN,registration_api,SLOW_REQUEST,A001,1875,registration request exceeded latency threshold
+L000048,2026-09-21 09:11:30,R0000107,WARN,registration_api,SLOW_REQUEST,A001,1766,registration request exceeded latency threshold
+L000049,2026-09-21 09:11:34,R0000108,WARN,registration_api,SLOW_REQUEST,A001,1579,registration request exceeded latency threshold
+L000050,2026-09-21 09:11:41,R0000110,WARN,registration_api,SLOW_REQUEST,A001,1373,registration request exceeded latency threshold
+L000051,2026-09-21 09:11:58,R0000111,WARN,registration_api,SLOW_REQUEST,A001,1786,registration request exceeded latency threshold
+L000052,2026-09-21 09:12:05,R0000112,ERROR,registration_api,E409,A001,1516,registration request failed
+L000053,2026-09-21 09:12:23,R0000113,ERROR,registration_api,E409,A001,1732,registration request failed
+L000301,2026-09-21 09:13:10,R0001522,INFO,registration_api,REQUEST_DONE,A013,190,registration request completed
+L000302,2026-09-21 09:14:09,R0001523,INFO,registration_api,REQUEST_DONE,A013,48,registration request completed
+L000054,2026-09-21 09:14:34,R0000126,ERROR,registration_api,E500,A001,1653,registration request failed
+L000055,2026-09-21 09:15:22,R0000133,WARN,registration_api,SLOW_REQUEST,A001,1479,registration request exceeded latency threshold
+L000056,2026-09-21 09:15:23,R0000134,WARN,registration_api,SLOW_REQUEST,A001,1475,registration request exceeded latency threshold
+L000057,2026-09-21 09:15:26,R0000135,WARN,registration_api,SLOW_REQUEST,A001,2184,registration request exceeded latency threshold
+L000058,2026-09-21 09:15:26,R0000136,WARN,registration_api,SLOW_REQUEST,A001,1649,registration request exceeded latency threshold
+L000059,2026-09-21 09:15:36,R0000137,WARN,registration_api,SLOW_REQUEST,A001,1423,registration request exceeded latency threshold
+L000060,2026-09-21 09:15:49,R0000139,WARN,registration_api,SLOW_REQUEST,A001,1647,registration request exceeded latency threshold
+L000061,2026-09-21 09:16:15,R0000140,WARN,registration_api,SLOW_REQUEST,A001,1313,registration request exceeded latency threshold
+L000062,2026-09-21 09:16:50,R0000142,WARN,registration_api,SLOW_REQUEST,A001,1627,registration request exceeded latency threshold
+L000063,2026-09-21 09:16:57,R0000143,WARN,registration_api,SLOW_REQUEST,A001,1560,registration request exceeded latency threshold
+L000064,2026-09-21 09:16:59,R0000144,WARN,registration_api,SLOW_REQUEST,A001,1757,registration request exceeded latency threshold
+L000065,2026-09-21 09:17:15,R0000147,WARN,registration_api,SLOW_REQUEST,A001,1624,registration request exceeded latency threshold
+L000066,2026-09-21 09:17:23,R0000148,WARN,registration_api,SLOW_REQUEST,A001,1573,registration request exceeded latency threshold
+L000067,2026-09-21 09:17:56,R0000149,WARN,registration_api,SLOW_REQUEST,A001,1525,registration request exceeded latency threshold
+L000560,2026-09-21 10:00:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000590,2026-09-21 10:12:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000617,2026-09-21 10:22:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000524,2026-09-21 10:37:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000303,2026-09-21 10:48:01,R0001528,ERROR,registration_api,E409,A013,499,registration request failed
+L000075,2026-09-21 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A001,,activity information synchronized
+L000305,2026-09-21 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A013,,activity information synchronized
+L000536,2026-09-21 11:18:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000636,2026-09-21 12:03:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000621,2026-09-21 13:18:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000724,2026-09-21 13:19:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000750,2026-09-21 13:54:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000549,2026-09-21 14:08:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000716,2026-09-21 15:14:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000068,2026-09-21 15:39:34,R0000160,INFO,registration_api,REQUEST_DONE,A001,296,registration request completed
+L000512,2026-09-21 16:41:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000748,2026-09-21 17:23:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000581,2026-09-21 17:53:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000625,2026-09-21 18:27:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000647,2026-09-21 19:32:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000618,2026-09-21 21:08:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000069,2026-09-21 21:17:00,R0000164,INFO,registration_api,REQUEST_DONE,A001,321,registration request completed
+L000070,2026-09-21 23:22:43,R0000168,ERROR,registration_api,E500,A001,649,registration request failed
+L000071,2026-09-22 04:20:13,R0000173,ERROR,registration_api,E500,A001,554,registration request failed
+L000658,2026-09-22 07:21:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000607,2026-09-22 11:37:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000525,2026-09-22 13:26:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000304,2026-09-22 13:55:55,R0001578,INFO,registration_api,REQUEST_DONE,A013,110,registration request completed
+L000072,2026-09-22 14:14:09,R0000180,INFO,registration_api,REQUEST_DONE,A001,235,registration request completed
+L000643,2026-09-22 15:27:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000614,2026-09-22 15:40:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000562,2026-09-22 16:46:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000774,2026-09-22 17:22:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000076,2026-09-22 18:02:21,R0000210,INFO,registration_api,REQUEST_DONE,A002,369,registration request completed
+L000306,2026-09-22 18:04:07,R0001620,INFO,registration_api,REQUEST_DONE,A014,254,registration request completed
+L000314,2026-09-22 18:10:37,R0001703,INFO,registration_api,REQUEST_DONE,A014,141,registration request completed
+L000307,2026-09-22 18:15:17,R0001628,INFO,registration_api,REQUEST_DONE,A014,234,registration request completed
+L000308,2026-09-22 18:15:25,R0001630,INFO,registration_api,REQUEST_DONE,A014,260,registration request completed
+L000743,2026-09-22 18:38:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000542,2026-09-22 19:39:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000747,2026-09-22 19:51:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000078,2026-09-22 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A002,,activity information synchronized
+L000315,2026-09-22 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A014,,activity information synchronized
+L000712,2026-09-22 22:39:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000721,2026-09-22 23:01:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000691,2026-09-22 23:25:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000593,2026-09-22 23:49:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000530,2026-09-23 06:12:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000518,2026-09-23 06:27:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000074,2026-09-23 06:42:00,R0000203,INFO,registration_api,REQUEST_DONE,A001,160,registration request completed
+L000686,2026-09-23 06:59:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000778,2026-09-23 07:47:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000771,2026-09-23 08:12:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000316,2026-09-23 09:00:06,R0001715,WARN,registration_api,SLOW_REQUEST,A015,1528,registration request exceeded latency threshold
+L000317,2026-09-23 09:00:13,R0001717,WARN,registration_api,SLOW_REQUEST,A015,2430,registration request exceeded latency threshold
+L000390,2026-09-23 09:00:18,R0001901,INFO,registration_api,REQUEST_DONE,A015,284,registration request completed
+L000318,2026-09-23 09:00:42,R0001721,WARN,registration_api,SLOW_REQUEST,A015,1602,registration request exceeded latency threshold
+L000319,2026-09-23 09:01:17,R0001725,WARN,registration_api,SLOW_REQUEST,A015,1591,registration request exceeded latency threshold
+L000320,2026-09-23 09:01:51,R0001729,WARN,registration_api,SLOW_REQUEST,A015,1652,registration request exceeded latency threshold
+L000321,2026-09-23 09:02:28,R0001736,ERROR,registration_api,E409,A015,1239,registration request failed
+L000322,2026-09-23 09:03:28,R0001742,WARN,registration_api,SLOW_REQUEST,A015,1665,registration request exceeded latency threshold
+L000323,2026-09-23 09:03:32,R0001745,WARN,registration_api,SLOW_REQUEST,A015,1360,registration request exceeded latency threshold
+L000324,2026-09-23 09:03:39,R0001746,WARN,registration_api,SLOW_REQUEST,A015,1973,registration request exceeded latency threshold
+L000391,2026-09-23 09:03:52,R0001913,INFO,registration_api,REQUEST_DONE,A015,907,registration request completed
+L000325,2026-09-23 09:03:59,R0001748,WARN,registration_api,SLOW_REQUEST,A015,1612,registration request exceeded latency threshold
+L000326,2026-09-23 09:04:10,R0001749,WARN,registration_api,SLOW_REQUEST,A015,1424,registration request exceeded latency threshold
+L000327,2026-09-23 09:04:13,R0001750,WARN,registration_api,SLOW_REQUEST,A015,1820,registration request exceeded latency threshold
+L000328,2026-09-23 09:04:25,R0001753,WARN,registration_api,SLOW_REQUEST,A015,2100,registration request exceeded latency threshold
+L000329,2026-09-23 09:04:28,R0001755,WARN,registration_api,SLOW_REQUEST,A015,1515,registration request exceeded latency threshold
+L000330,2026-09-23 09:04:40,R0001756,WARN,registration_api,SLOW_REQUEST,A015,1371,registration request exceeded latency threshold
+L000331,2026-09-23 09:05:01,R0001758,WARN,registration_api,SLOW_REQUEST,A015,1529,registration request exceeded latency threshold
+L000332,2026-09-23 09:05:01,R0001759,WARN,registration_api,SLOW_REQUEST,A015,1818,registration request exceeded latency threshold
+L000333,2026-09-23 09:05:02,R0001760,WARN,registration_api,SLOW_REQUEST,A015,2182,registration request exceeded latency threshold
+L000334,2026-09-23 09:05:03,R0001761,WARN,registration_api,SLOW_REQUEST,A015,1480,registration request exceeded latency threshold
+L000335,2026-09-23 09:05:06,R0001762,WARN,registration_api,SLOW_REQUEST,A015,1718,registration request exceeded latency threshold
+L000336,2026-09-23 09:05:31,R0001764,INFO,registration_api,REQUEST_DONE,A015,924,registration request completed
+L000337,2026-09-23 09:05:31,R0001765,WARN,registration_api,SLOW_REQUEST,A015,1676,registration request exceeded latency threshold
+L000338,2026-09-23 09:05:36,R0001766,INFO,registration_api,REQUEST_DONE,A015,180,registration request completed
+L000339,2026-09-23 09:05:50,R0001770,WARN,registration_api,SLOW_REQUEST,A015,1475,registration request exceeded latency threshold
+L000340,2026-09-23 09:05:55,R0001772,WARN,registration_api,SLOW_REQUEST,A015,1494,registration request exceeded latency threshold
+L000341,2026-09-23 09:05:58,R0001773,ERROR,registration_api,E500,A015,1355,registration request failed
+L000342,2026-09-23 09:06:08,R0001774,WARN,registration_api,SLOW_REQUEST,A015,2011,registration request exceeded latency threshold
+L000343,2026-09-23 09:06:24,R0001778,WARN,registration_api,SLOW_REQUEST,A015,1614,registration request exceeded latency threshold
+L000344,2026-09-23 09:06:28,R0001779,WARN,registration_api,SLOW_REQUEST,A015,1378,registration request exceeded latency threshold
+L000345,2026-09-23 09:06:35,R0001780,WARN,registration_api,SLOW_REQUEST,A015,1456,registration request exceeded latency threshold
+L000346,2026-09-23 09:06:44,R0001781,WARN,registration_api,SLOW_REQUEST,A015,1427,registration request exceeded latency threshold
+L000347,2026-09-23 09:06:54,R0001783,WARN,registration_api,SLOW_REQUEST,A015,1542,registration request exceeded latency threshold
+L000348,2026-09-23 09:07:04,R0001785,WARN,registration_api,SLOW_REQUEST,A015,1314,registration request exceeded latency threshold
+L000349,2026-09-23 09:07:33,R0001788,INFO,registration_api,REQUEST_DONE,A015,709,registration request completed
+L000350,2026-09-23 09:07:36,R0001789,WARN,registration_api,SLOW_REQUEST,A015,1313,registration request exceeded latency threshold
+L000351,2026-09-23 09:07:46,R0001791,WARN,registration_api,SLOW_REQUEST,A015,1379,registration request exceeded latency threshold
+L000352,2026-09-23 09:07:58,R0001793,WARN,registration_api,SLOW_REQUEST,A015,1627,registration request exceeded latency threshold
+L000353,2026-09-23 09:08:13,R0001794,WARN,registration_api,SLOW_REQUEST,A015,1902,registration request exceeded latency threshold
+L000354,2026-09-23 09:08:27,R0001798,WARN,registration_api,SLOW_REQUEST,A015,2034,registration request exceeded latency threshold
+L000355,2026-09-23 09:08:37,R0001801,WARN,registration_api,SLOW_REQUEST,A015,1402,registration request exceeded latency threshold
+L000356,2026-09-23 09:08:39,R0001802,INFO,registration_api,REQUEST_DONE,A015,826,registration request completed
+L000357,2026-09-23 09:08:42,R0001803,WARN,registration_api,SLOW_REQUEST,A015,1540,registration request exceeded latency threshold
+L000358,2026-09-23 09:08:52,R0001804,WARN,registration_api,SLOW_REQUEST,A015,1440,registration request exceeded latency threshold
+L000359,2026-09-23 09:09:02,R0001806,WARN,registration_api,SLOW_REQUEST,A015,1414,registration request exceeded latency threshold
+L000360,2026-09-23 09:09:21,R0001808,INFO,registration_api,REQUEST_DONE,A015,256,registration request completed
+L000361,2026-09-23 09:09:27,R0001809,WARN,registration_api,SLOW_REQUEST,A015,1604,registration request exceeded latency threshold
+L000362,2026-09-23 09:09:30,R0001810,WARN,registration_api,SLOW_REQUEST,A015,1555,registration request exceeded latency threshold
+L000363,2026-09-23 09:09:32,R0001811,WARN,registration_api,SLOW_REQUEST,A015,1775,registration request exceeded latency threshold
+L000364,2026-09-23 09:09:48,R0001812,WARN,registration_api,SLOW_REQUEST,A015,1357,registration request exceeded latency threshold
+L000365,2026-09-23 09:10:01,R0001814,WARN,registration_api,SLOW_REQUEST,A015,1678,registration request exceeded latency threshold
+L000366,2026-09-23 09:10:07,R0001815,WARN,registration_api,SLOW_REQUEST,A015,1816,registration request exceeded latency threshold
+L000367,2026-09-23 09:10:11,R0001816,ERROR,registration_api,E409,A015,1044,registration request failed
+L000368,2026-09-23 09:10:26,R0001817,WARN,registration_api,SLOW_REQUEST,A015,1364,registration request exceeded latency threshold
+L000369,2026-09-23 09:10:46,R0001820,WARN,registration_api,SLOW_REQUEST,A015,1765,registration request exceeded latency threshold
+L000370,2026-09-23 09:10:50,R0001821,WARN,registration_api,SLOW_REQUEST,A015,2049,registration request exceeded latency threshold
+L000371,2026-09-23 09:11:45,R0001827,WARN,registration_api,SLOW_REQUEST,A015,1433,registration request exceeded latency threshold
+L000372,2026-09-23 09:11:55,R0001828,WARN,registration_api,SLOW_REQUEST,A015,2340,registration request exceeded latency threshold
+L000373,2026-09-23 09:12:56,R0001829,WARN,registration_api,SLOW_REQUEST,A015,1500,registration request exceeded latency threshold
+L000374,2026-09-23 09:13:05,R0001831,WARN,registration_api,SLOW_REQUEST,A015,1765,registration request exceeded latency threshold
+L000375,2026-09-23 09:13:54,R0001833,WARN,registration_api,SLOW_REQUEST,A015,1579,registration request exceeded latency threshold
+L000376,2026-09-23 09:15:00,R0001839,WARN,registration_api,SLOW_REQUEST,A015,1727,registration request exceeded latency threshold
+L000377,2026-09-23 09:16:13,R0001845,WARN,registration_api,SLOW_REQUEST,A015,1651,registration request exceeded latency threshold
+L000378,2026-09-23 09:16:51,R0001849,WARN,registration_api,SLOW_REQUEST,A015,1466,registration request exceeded latency threshold
+L000379,2026-09-23 09:16:54,R0001850,WARN,registration_api,SLOW_REQUEST,A015,1571,registration request exceeded latency threshold
+L000380,2026-09-23 09:17:04,R0001851,WARN,registration_api,SLOW_REQUEST,A015,1701,registration request exceeded latency threshold
+L000381,2026-09-23 09:17:09,R0001852,WARN,registration_api,SLOW_REQUEST,A015,1621,registration request exceeded latency threshold
+L000382,2026-09-23 09:17:33,R0001856,WARN,registration_api,SLOW_REQUEST,A015,1317,registration request exceeded latency threshold
+L000383,2026-09-23 09:17:36,R0001857,ERROR,registration_api,E409,A015,1826,registration request failed
+L000384,2026-09-23 09:17:43,R0001859,WARN,registration_api,SLOW_REQUEST,A015,1577,registration request exceeded latency threshold
+L000385,2026-09-23 09:17:51,R0001861,WARN,registration_api,SLOW_REQUEST,A015,1533,registration request exceeded latency threshold
+L000309,2026-09-23 09:38:10,R0001665,INFO,registration_api,REQUEST_DONE,A014,114,registration request completed
+L000088,2026-09-23 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A003,,activity information synchronized
+L000392,2026-09-23 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A015,,activity information synchronized
+L000664,2026-09-23 11:15:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000632,2026-09-23 11:31:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000079,2026-09-23 11:32:05,R0000337,INFO,registration_api,REQUEST_DONE,A003,215,registration request completed
+L000528,2026-09-23 11:37:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000646,2026-09-23 12:14:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000601,2026-09-23 12:57:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000622,2026-09-23 12:57:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000310,2026-09-23 13:01:07,R0001670,INFO,registration_api,REQUEST_DONE,A014,206,registration request completed
+L000649,2026-09-23 13:04:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000772,2026-09-23 13:26:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000080,2026-09-23 13:37:45,R0000344,INFO,registration_api,REQUEST_DONE,A003,246,registration request completed
+L000539,2026-09-23 13:45:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000634,2026-09-23 14:01:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000633,2026-09-23 14:59:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000077,2026-09-23 16:01:53,R0000267,ERROR,registration_api,E409,A002,801,registration request failed
+L000670,2026-09-23 17:41:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000311,2026-09-23 18:01:44,R0001680,INFO,registration_api,REQUEST_DONE,A014,291,registration request completed
+L000312,2026-09-23 18:18:20,R0001681,INFO,registration_api,REQUEST_DONE,A014,177,registration request completed
+L000746,2026-09-23 18:42:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000081,2026-09-23 18:46:29,R0000358,ERROR,registration_api,E500,A003,579,registration request failed
+L000693,2026-09-23 19:46:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000386,2026-09-23 19:46:21,R0001871,INFO,registration_api,REQUEST_DONE,A015,228,registration request completed
+L000737,2026-09-23 19:49:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000082,2026-09-23 19:52:59,R0000360,INFO,registration_api,REQUEST_DONE,A003,110,registration request completed
+L000680,2026-09-23 19:55:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000558,2026-09-23 20:26:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000705,2026-09-23 20:33:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000700,2026-09-23 21:32:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000742,2026-09-23 23:19:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000313,2026-09-24 03:08:02,R0001695,INFO,registration_api,REQUEST_DONE,A014,289,registration request completed
+L000083,2026-09-24 04:26:22,R0000371,INFO,registration_api,REQUEST_DONE,A003,48,registration request completed
+L000084,2026-09-24 06:15:20,R0000373,INFO,registration_api,REQUEST_DONE,A003,238,registration request completed
+L000662,2026-09-24 06:28:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000739,2026-09-24 07:11:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000695,2026-09-24 09:02:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000736,2026-09-24 10:28:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000640,2026-09-24 11:28:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000766,2026-09-24 12:06:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000387,2026-09-24 12:15:50,R0001886,INFO,registration_api,REQUEST_DONE,A015,289,registration request completed
+L000085,2026-09-24 12:57:29,R0000386,INFO,registration_api,REQUEST_DONE,A003,204,registration request completed
+L000388,2026-09-24 13:03:55,R0001892,INFO,registration_api,REQUEST_DONE,A015,166,registration request completed
+L000571,2026-09-24 15:38:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000714,2026-09-24 15:43:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000673,2026-09-24 15:57:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000389,2026-09-24 16:10:41,R0001894,ERROR,registration_api,E500,A015,870,registration request failed
+L000089,2026-09-24 18:04:43,R0000422,ERROR,registration_api,E409,A004,526,registration request failed
+L000090,2026-09-24 18:10:55,R0000429,INFO,registration_api,REQUEST_DONE,A004,270,registration request completed
+L000091,2026-09-24 18:11:03,R0000430,INFO,registration_api,REQUEST_DONE,A004,122,registration request completed
+L000547,2026-09-24 19:28:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000668,2026-09-24 19:54:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000102,2026-09-24 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A004,,activity information synchronized
+L000401,2026-09-24 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A016,,activity information synchronized
+L000086,2026-09-24 20:04:54,R0000404,INFO,registration_api,REQUEST_DONE,A003,58,registration request completed
+L000092,2026-09-24 20:31:12,R0000443,INFO,registration_api,REQUEST_DONE,A004,79,registration request completed
+L000726,2026-09-24 21:55:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000613,2026-09-24 22:46:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000508,2026-09-24 22:56:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000393,2026-09-24 23:26:31,R0001955,INFO,registration_api,REQUEST_DONE,A016,224,registration request completed
+L000093,2026-09-24 23:34:43,R0000447,INFO,registration_api,REQUEST_DONE,A004,215,registration request completed
+L000654,2026-09-24 23:44:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000779,2026-09-24 23:46:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000394,2026-09-25 02:49:51,R0001961,INFO,registration_api,REQUEST_DONE,A016,48,registration request completed
+L000094,2026-09-25 03:54:08,R0000455,INFO,registration_api,REQUEST_DONE,A004,278,registration request completed
+L000395,2026-09-25 04:15:15,R0001962,INFO,registration_api,REQUEST_DONE,A016,48,registration request completed
+L000087,2026-09-25 06:00:00,R0000411,INFO,registration_api,REQUEST_DONE,A003,167,registration request completed
+L000396,2026-09-25 06:00:43,R0001967,INFO,registration_api,REQUEST_DONE,A016,251,registration request completed
+L000551,2026-09-25 07:10:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000755,2026-09-25 07:48:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000534,2026-09-25 08:09:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000527,2026-09-25 08:20:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000598,2026-09-25 08:58:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000103,2026-09-25 09:01:02,R0000520,WARN,registration_api,SLOW_REQUEST,A005,1508,registration request exceeded latency threshold
+L000104,2026-09-25 09:01:05,R0000521,INFO,registration_api,REQUEST_DONE,A005,850,registration request completed
+L000167,2026-09-25 09:01:14,R0000713,INFO,registration_api,REQUEST_DONE,A005,879,registration request completed
+L000105,2026-09-25 09:01:28,R0000522,WARN,registration_api,SLOW_REQUEST,A005,1596,registration request exceeded latency threshold
+L000402,2026-09-25 09:01:30,R0002026,INFO,registration_api,REQUEST_DONE,A017,273,registration request completed
+L000106,2026-09-25 09:01:34,R0000523,WARN,registration_api,SLOW_REQUEST,A005,1553,registration request exceeded latency threshold
+L000168,2026-09-25 09:01:35,R0000714,INFO,registration_api,REQUEST_DONE,A005,505,registration request completed
+L000107,2026-09-25 09:01:36,R0000524,ERROR,registration_api,E409,A005,1953,registration request failed
+L000108,2026-09-25 09:01:37,R0000525,WARN,registration_api,SLOW_REQUEST,A005,1634,registration request exceeded latency threshold
+L000109,2026-09-25 09:01:43,R0000526,WARN,registration_api,SLOW_REQUEST,A005,1612,registration request exceeded latency threshold
+L000110,2026-09-25 09:01:52,R0000527,WARN,registration_api,SLOW_REQUEST,A005,1822,registration request exceeded latency threshold
+L000111,2026-09-25 09:01:56,R0000528,WARN,registration_api,SLOW_REQUEST,A005,1729,registration request exceeded latency threshold
+L000112,2026-09-25 09:02:02,R0000529,WARN,registration_api,SLOW_REQUEST,A005,1872,registration request exceeded latency threshold
+L000113,2026-09-25 09:02:41,R0000532,WARN,registration_api,SLOW_REQUEST,A005,1647,registration request exceeded latency threshold
+L000114,2026-09-25 09:02:44,R0000534,WARN,registration_api,SLOW_REQUEST,A005,1632,registration request exceeded latency threshold
+L000115,2026-09-25 09:02:44,R0000535,WARN,registration_api,SLOW_REQUEST,A005,1460,registration request exceeded latency threshold
+L000116,2026-09-25 09:03:07,R0000537,WARN,registration_api,SLOW_REQUEST,A005,1587,registration request exceeded latency threshold
+L000117,2026-09-25 09:03:15,R0000538,WARN,registration_api,SLOW_REQUEST,A005,1516,registration request exceeded latency threshold
+L000118,2026-09-25 09:03:45,R0000541,WARN,registration_api,SLOW_REQUEST,A005,1594,registration request exceeded latency threshold
+L000119,2026-09-25 09:03:55,R0000542,WARN,registration_api,SLOW_REQUEST,A005,1534,registration request exceeded latency threshold
+L000166,2026-09-25 09:03:55,R0000711,INFO,registration_api,REQUEST_DONE,A005,739,registration request completed
+L000120,2026-09-25 09:04:03,R0000543,INFO,registration_api,REQUEST_DONE,A005,234,registration request completed
+L000121,2026-09-25 09:04:20,R0000546,WARN,registration_api,SLOW_REQUEST,A005,1455,registration request exceeded latency threshold
+L000122,2026-09-25 09:05:10,R0000550,WARN,registration_api,SLOW_REQUEST,A005,1411,registration request exceeded latency threshold
+L000123,2026-09-25 09:06:17,R0000559,ERROR,registration_api,E409,A005,1667,registration request failed
+L000124,2026-09-25 09:06:37,R0000560,WARN,registration_api,SLOW_REQUEST,A005,1466,registration request exceeded latency threshold
+L000125,2026-09-25 09:06:53,R0000562,WARN,registration_api,SLOW_REQUEST,A005,1317,registration request exceeded latency threshold
+L000126,2026-09-25 09:07:23,R0000566,WARN,registration_api,SLOW_REQUEST,A005,2008,registration request exceeded latency threshold
+L000127,2026-09-25 09:07:35,R0000568,WARN,registration_api,SLOW_REQUEST,A005,1467,registration request exceeded latency threshold
+L000128,2026-09-25 09:08:04,R0000572,INFO,registration_api,REQUEST_DONE,A005,468,registration request completed
+L000129,2026-09-25 09:08:06,R0000573,WARN,registration_api,SLOW_REQUEST,A005,1315,registration request exceeded latency threshold
+L000130,2026-09-25 09:08:48,R0000578,ERROR,registration_api,E409,A005,1420,registration request failed
+L000131,2026-09-25 09:08:54,R0000579,WARN,registration_api,SLOW_REQUEST,A005,1442,registration request exceeded latency threshold
+L000132,2026-09-25 09:09:20,R0000581,WARN,registration_api,SLOW_REQUEST,A005,1851,registration request exceeded latency threshold
+L000133,2026-09-25 09:09:32,R0000583,WARN,registration_api,SLOW_REQUEST,A005,1438,registration request exceeded latency threshold
+L000134,2026-09-25 09:10:25,R0000586,WARN,registration_api,SLOW_REQUEST,A005,1949,registration request exceeded latency threshold
+L000135,2026-09-25 09:10:45,R0000588,WARN,registration_api,SLOW_REQUEST,A005,1478,registration request exceeded latency threshold
+L000136,2026-09-25 09:10:49,R0000590,WARN,registration_api,SLOW_REQUEST,A005,1519,registration request exceeded latency threshold
+L000137,2026-09-25 09:11:00,R0000591,WARN,registration_api,SLOW_REQUEST,A005,1476,registration request exceeded latency threshold
+L000138,2026-09-25 09:11:14,R0000593,WARN,registration_api,SLOW_REQUEST,A005,1701,registration request exceeded latency threshold
+L000139,2026-09-25 09:11:37,R0000597,WARN,registration_api,SLOW_REQUEST,A005,1304,registration request exceeded latency threshold
+L000140,2026-09-25 09:11:42,R0000598,ERROR,registration_api,E409,A005,2295,registration request failed
+L000141,2026-09-25 09:11:51,R0000599,WARN,registration_api,SLOW_REQUEST,A005,1490,registration request exceeded latency threshold
+L000142,2026-09-25 09:11:53,R0000600,WARN,registration_api,SLOW_REQUEST,A005,1605,registration request exceeded latency threshold
+L000631,2026-09-25 09:12:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000143,2026-09-25 09:12:08,R0000602,INFO,registration_api,REQUEST_DONE,A005,457,registration request completed
+L000144,2026-09-25 09:12:22,R0000604,WARN,registration_api,SLOW_REQUEST,A005,1626,registration request exceeded latency threshold
+L000145,2026-09-25 09:12:24,R0000605,WARN,registration_api,SLOW_REQUEST,A005,1690,registration request exceeded latency threshold
+L000146,2026-09-25 09:12:37,R0000609,WARN,registration_api,SLOW_REQUEST,A005,1684,registration request exceeded latency threshold
+L000147,2026-09-25 09:12:44,R0000610,WARN,registration_api,SLOW_REQUEST,A005,1413,registration request exceeded latency threshold
+L000148,2026-09-25 09:12:53,R0000612,WARN,registration_api,SLOW_REQUEST,A005,1627,registration request exceeded latency threshold
+L000149,2026-09-25 09:13:20,R0000614,WARN,registration_api,SLOW_REQUEST,A005,1581,registration request exceeded latency threshold
+L000150,2026-09-25 09:13:21,R0000615,ERROR,registration_api,E409,A005,1686,registration request failed
+L000151,2026-09-25 09:14:47,R0000625,WARN,registration_api,SLOW_REQUEST,A005,1412,registration request exceeded latency threshold
+L000403,2026-09-25 09:14:49,R0002037,INFO,registration_api,REQUEST_DONE,A017,267,registration request completed
+L000152,2026-09-25 09:16:07,R0000630,WARN,registration_api,SLOW_REQUEST,A005,1305,registration request exceeded latency threshold
+L000153,2026-09-25 09:16:25,R0000635,WARN,registration_api,SLOW_REQUEST,A005,1445,registration request exceeded latency threshold
+L000154,2026-09-25 09:16:31,R0000637,WARN,registration_api,SLOW_REQUEST,A005,1590,registration request exceeded latency threshold
+L000155,2026-09-25 09:16:36,R0000638,WARN,registration_api,SLOW_REQUEST,A005,1817,registration request exceeded latency threshold
+L000156,2026-09-25 09:17:05,R0000641,WARN,registration_api,SLOW_REQUEST,A005,1328,registration request exceeded latency threshold
+L000157,2026-09-25 09:17:14,R0000642,WARN,registration_api,SLOW_REQUEST,A005,2333,registration request exceeded latency threshold
+L000158,2026-09-25 09:17:37,R0000644,WARN,registration_api,SLOW_REQUEST,A005,1394,registration request exceeded latency threshold
+L000159,2026-09-25 09:17:46,R0000648,ERROR,registration_api,E500,A005,2052,registration request failed
+L000650,2026-09-25 09:35:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000784,2026-09-25 09:47:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000612,2026-09-25 09:54:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000095,2026-09-25 10:39:17,R0000464,INFO,registration_api,REQUEST_DONE,A004,161,registration request completed
+L000169,2026-09-25 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A005,,activity information synchronized
+L000160,2026-09-25 11:01:56,R0000651,ERROR,registration_api,E500,A005,813,registration request failed
+L000409,2026-09-25 12:44:43,R0002107,INFO,registration_api,REQUEST_DONE,A017,156,registration request completed
+L000759,2026-09-25 12:50:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000404,2026-09-25 12:58:01,R0002048,INFO,registration_api,REQUEST_DONE,A017,48,registration request completed
+L000405,2026-09-25 12:58:12,R0002049,INFO,registration_api,REQUEST_DONE,A017,229,registration request completed
+L000773,2026-09-25 13:29:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000616,2026-09-25 14:32:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000101,2026-09-25 15:21:16,R0000502,INFO,registration_api,REQUEST_DONE,A004,189,registration request completed
+L000544,2026-09-25 15:50:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000161,2026-09-25 16:28:48,R0000662,INFO,registration_api,REQUEST_DONE,A005,289,registration request completed
+L000786,2026-09-25 16:45:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000610,2026-09-25 18:16:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000406,2026-09-25 18:22:45,R0002065,INFO,registration_api,REQUEST_DONE,A017,228,registration request completed
+L000162,2026-09-25 18:39:41,R0000663,INFO,registration_api,REQUEST_DONE,A005,319,registration request completed
+L000559,2026-09-25 21:00:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000397,2026-09-25 21:16:15,R0002000,INFO,registration_api,REQUEST_DONE,A016,234,registration request completed
+L000554,2026-09-25 21:47:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000096,2026-09-25 22:00:27,R0000483,INFO,registration_api,REQUEST_DONE,A004,217,registration request completed
+L000097,2026-09-25 22:04:14,R0000484,INFO,registration_api,REQUEST_DONE,A004,181,registration request completed
+L000398,2026-09-25 22:08:32,R0002002,INFO,registration_api,REQUEST_DONE,A016,224,registration request completed
+L000399,2026-09-25 22:11:34,R0002003,INFO,registration_api,REQUEST_DONE,A016,127,registration request completed
+L000526,2026-09-25 23:08:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000710,2026-09-25 23:11:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000573,2026-09-25 23:17:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000749,2026-09-25 23:33:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000400,2026-09-25 23:35:32,R0002006,ERROR,registration_api,E500,A016,675,registration request failed
+L000548,2026-09-25 23:45:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000098,2026-09-26 02:40:35,R0000496,INFO,registration_api,REQUEST_DONE,A004,260,registration request completed
+L000099,2026-09-26 02:53:16,R0000497,INFO,registration_api,REQUEST_DONE,A004,257,registration request completed
+L000163,2026-09-26 03:16:19,R0000675,INFO,registration_api,REQUEST_DONE,A005,345,registration request completed
+L000164,2026-09-26 05:17:27,R0000678,INFO,registration_api,REQUEST_DONE,A005,388,registration request completed
+L000407,2026-09-26 05:31:07,R0002083,INFO,registration_api,REQUEST_DONE,A017,300,registration request completed
+L000100,2026-09-26 05:37:51,R0000500,ERROR,registration_api,E500,A004,654,registration request failed
+L000644,2026-09-26 06:40:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000510,2026-09-26 06:47:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000790,2026-09-26 06:58:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000661,2026-09-26 07:43:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000591,2026-09-26 08:57:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000770,2026-09-26 10:51:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000655,2026-09-26 11:06:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000783,2026-09-26 11:48:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000717,2026-09-26 12:02:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000762,2026-09-26 13:08:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000630,2026-09-26 15:03:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000165,2026-09-26 16:47:43,R0000695,ERROR,registration_api,E500,A005,758,registration request failed
+L000515,2026-09-26 17:35:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000410,2026-09-26 18:00:56,R0002113,INFO,registration_api,REQUEST_DONE,A018,118,registration request completed
+L000173,2026-09-26 18:11:54,R0000811,INFO,registration_api,REQUEST_DONE,A006,163,registration request completed
+L000411,2026-09-26 18:12:14,R0002126,ERROR,registration_api,E500,A018,412,registration request failed
+L000412,2026-09-26 18:12:56,R0002127,ERROR,registration_api,E500,A018,389,registration request failed
+L000170,2026-09-26 18:14:52,R0000737,INFO,registration_api,REQUEST_DONE,A006,131,registration request completed
+L000413,2026-09-26 18:15:03,R0002128,INFO,registration_api,REQUEST_DONE,A018,189,registration request completed
+L000174,2026-09-26 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A006,,activity information synchronized
+L000419,2026-09-26 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A018,,activity information synchronized
+L000568,2026-09-26 20:17:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000408,2026-09-26 20:17:35,R0002102,INFO,registration_api,REQUEST_DONE,A017,232,registration request completed
+L000555,2026-09-26 21:59:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000509,2026-09-26 23:55:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000171,2026-09-27 04:19:50,R0000765,INFO,registration_api,REQUEST_DONE,A006,48,registration request completed
+L000414,2026-09-27 06:46:41,R0002157,INFO,registration_api,REQUEST_DONE,A018,248,registration request completed
+L000415,2026-09-27 07:41:54,R0002159,INFO,registration_api,REQUEST_DONE,A018,162,registration request completed
+L000666,2026-09-27 07:58:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000416,2026-09-27 08:02:07,R0002161,INFO,registration_api,REQUEST_DONE,A018,180,registration request completed
+L000722,2026-09-27 08:45:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000175,2026-09-27 09:00:27,R0000812,INFO,registration_api,REQUEST_DONE,A007,258,registration request completed
+L000420,2026-09-27 09:11:56,R0002226,INFO,registration_api,REQUEST_DONE,A019,162,registration request completed
+L000176,2026-09-27 09:12:01,R0000828,INFO,registration_api,REQUEST_DONE,A007,314,registration request completed
+L000177,2026-09-27 09:15:13,R0000830,INFO,registration_api,REQUEST_DONE,A007,171,registration request completed
+L000172,2026-09-27 09:38:30,R0000771,INFO,registration_api,REQUEST_DONE,A006,121,registration request completed
+L000421,2026-09-27 10:04:50,R0002234,INFO,registration_api,REQUEST_DONE,A019,346,registration request completed
+L000780,2026-09-27 10:32:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000713,2026-09-27 10:44:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000188,2026-09-27 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A007,,activity information synchronized
+L000423,2026-09-27 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A019,,activity information synchronized
+L000641,2026-09-27 11:03:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000639,2026-09-27 11:21:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000638,2026-09-27 11:42:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000763,2026-09-27 12:12:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000697,2026-09-27 12:56:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000178,2026-09-27 15:18:11,R0000839,INFO,registration_api,REQUEST_DONE,A007,220,registration request completed
+L000756,2026-09-27 15:19:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000586,2026-09-27 15:53:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000583,2026-09-27 16:13:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000422,2026-09-27 16:38:29,R0002298,INFO,registration_api,REQUEST_DONE,A019,253,registration request completed
+L000179,2026-09-27 17:03:23,R0000843,INFO,registration_api,REQUEST_DONE,A007,173,registration request completed
+L000180,2026-09-27 19:08:54,R0000847,INFO,registration_api,REQUEST_DONE,A007,48,registration request completed
+L000604,2026-09-27 19:26:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000557,2026-09-27 20:04:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000728,2026-09-27 20:44:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000730,2026-09-27 20:58:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000531,2026-09-27 21:56:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000727,2026-09-27 22:00:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000787,2026-09-27 22:18:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000537,2026-09-27 23:29:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000569,2026-09-27 23:50:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000181,2026-09-28 02:53:58,R0000869,INFO,registration_api,REQUEST_DONE,A007,216,registration request completed
+L000417,2026-09-28 03:07:05,R0002190,INFO,registration_api,REQUEST_DONE,A018,203,registration request completed
+L000418,2026-09-28 03:28:33,R0002191,INFO,registration_api,REQUEST_DONE,A018,69,registration request completed
+L000182,2026-09-28 03:52:46,R0000872,INFO,registration_api,REQUEST_DONE,A007,335,registration request completed
+L000183,2026-09-28 04:14:59,R0000876,INFO,registration_api,REQUEST_DONE,A007,284,registration request completed
+L000659,2026-09-28 06:40:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000702,2026-09-28 06:45:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000674,2026-09-28 08:13:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000715,2026-09-28 08:49:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000733,2026-09-28 09:16:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000184,2026-09-28 09:39:42,R0000886,INFO,registration_api,REQUEST_DONE,A007,131,registration request completed
+L000185,2026-09-28 10:51:04,R0000888,INFO,registration_api,REQUEST_DONE,A007,56,registration request completed
+L000553,2026-09-28 11:12:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000529,2026-09-28 12:00:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000520,2026-09-28 13:12:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000186,2026-09-28 13:45:11,R0000898,INFO,registration_api,REQUEST_DONE,A007,202,registration request completed
+L000187,2026-09-28 14:01:08,R0000910,INFO,registration_api,REQUEST_DONE,A007,209,registration request completed
+L000597,2026-09-28 14:53:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000652,2026-09-28 15:56:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000577,2026-09-28 16:35:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000769,2026-09-28 16:35:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000609,2026-09-28 17:00:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000599,2026-09-28 17:52:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000576,2026-09-28 18:06:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000189,2026-09-28 18:06:15,R0000917,INFO,registration_api,REQUEST_DONE,A008,139,registration request completed
+L000424,2026-09-28 18:10:02,R0002316,INFO,registration_api,REQUEST_DONE,A020,166,registration request completed
+L000190,2026-09-28 18:14:36,R0000926,INFO,registration_api,REQUEST_DONE,A008,414,registration request completed
+L000696,2026-09-28 18:25:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000676,2026-09-28 19:41:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000198,2026-09-28 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A008,,activity information synchronized
+L000425,2026-09-28 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A020,,activity information synchronized
+L000191,2026-09-28 20:49:56,R0000937,INFO,registration_api,REQUEST_DONE,A008,236,registration request completed
+L000582,2026-09-28 20:51:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000626,2026-09-28 21:09:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000522,2026-09-28 21:25:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000192,2026-09-28 22:12:52,R0000941,INFO,registration_api,REQUEST_DONE,A008,48,registration request completed
+L000765,2026-09-28 22:52:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000764,2026-09-28 23:20:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000193,2026-09-29 02:04:35,R0000951,INFO,registration_api,REQUEST_DONE,A008,101,registration request completed
+L000564,2026-09-29 06:31:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000623,2026-09-29 07:36:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000731,2026-09-29 07:38:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000199,2026-09-29 09:00:35,R0001018,INFO,registration_api,REQUEST_DONE,A009,190,registration request completed
+L000426,2026-09-29 09:01:01,R0002413,WARN,registration_api,SLOW_REQUEST,A021,1466,registration request exceeded latency threshold
+L000427,2026-09-29 09:01:33,R0002416,INFO,registration_api,REQUEST_DONE,A021,653,registration request completed
+L000428,2026-09-29 09:01:35,R0002417,WARN,registration_api,SLOW_REQUEST,A021,1958,registration request exceeded latency threshold
+L000483,2026-09-29 09:01:51,R0002591,INFO,registration_api,REQUEST_DONE,A021,635,registration request completed
+L000429,2026-09-29 09:02:04,R0002421,WARN,registration_api,SLOW_REQUEST,A021,1589,registration request exceeded latency threshold
+L000430,2026-09-29 09:02:16,R0002422,WARN,registration_api,SLOW_REQUEST,A021,1665,registration request exceeded latency threshold
+L000431,2026-09-29 09:02:31,R0002424,WARN,registration_api,SLOW_REQUEST,A021,1468,registration request exceeded latency threshold
+L000432,2026-09-29 09:03:05,R0002427,WARN,registration_api,SLOW_REQUEST,A021,2087,registration request exceeded latency threshold
+L000433,2026-09-29 09:03:39,R0002432,WARN,registration_api,SLOW_REQUEST,A021,1412,registration request exceeded latency threshold
+L000434,2026-09-29 09:04:07,R0002436,ERROR,registration_api,E500,A021,2077,registration request failed
+L000435,2026-09-29 09:04:42,R0002437,WARN,registration_api,SLOW_REQUEST,A021,1965,registration request exceeded latency threshold
+L000436,2026-09-29 09:04:45,R0002438,WARN,registration_api,SLOW_REQUEST,A021,1363,registration request exceeded latency threshold
+L000437,2026-09-29 09:05:27,R0002447,INFO,registration_api,REQUEST_DONE,A021,896,registration request completed
+L000438,2026-09-29 09:05:35,R0002449,WARN,registration_api,SLOW_REQUEST,A021,1420,registration request exceeded latency threshold
+L000439,2026-09-29 09:06:09,R0002452,WARN,registration_api,SLOW_REQUEST,A021,1470,registration request exceeded latency threshold
+L000440,2026-09-29 09:06:10,R0002453,WARN,registration_api,SLOW_REQUEST,A021,1550,registration request exceeded latency threshold
+L000441,2026-09-29 09:06:12,R0002454,WARN,registration_api,SLOW_REQUEST,A021,1428,registration request exceeded latency threshold
+L000442,2026-09-29 09:06:27,R0002457,WARN,registration_api,SLOW_REQUEST,A021,1351,registration request exceeded latency threshold
+L000443,2026-09-29 09:06:43,R0002459,INFO,registration_api,REQUEST_DONE,A021,881,registration request completed
+L000444,2026-09-29 09:06:59,R0002463,WARN,registration_api,SLOW_REQUEST,A021,1609,registration request exceeded latency threshold
+L000445,2026-09-29 09:07:40,R0002469,WARN,registration_api,SLOW_REQUEST,A021,1394,registration request exceeded latency threshold
+L000446,2026-09-29 09:08:21,R0002472,WARN,registration_api,SLOW_REQUEST,A021,1721,registration request exceeded latency threshold
+L000447,2026-09-29 09:08:23,R0002473,WARN,registration_api,SLOW_REQUEST,A021,1514,registration request exceeded latency threshold
+L000448,2026-09-29 09:08:33,R0002476,WARN,registration_api,SLOW_REQUEST,A021,1431,registration request exceeded latency threshold
+L000449,2026-09-29 09:08:46,R0002479,WARN,registration_api,SLOW_REQUEST,A021,1480,registration request exceeded latency threshold
+L000450,2026-09-29 09:08:55,R0002480,WARN,registration_api,SLOW_REQUEST,A021,1338,registration request exceeded latency threshold
+L000451,2026-09-29 09:09:01,R0002481,WARN,registration_api,SLOW_REQUEST,A021,1332,registration request exceeded latency threshold
+L000452,2026-09-29 09:09:06,R0002482,WARN,registration_api,SLOW_REQUEST,A021,1527,registration request exceeded latency threshold
+L000200,2026-09-29 09:09:52,R0001027,INFO,registration_api,REQUEST_DONE,A009,48,registration request completed
+L000453,2026-09-29 09:09:53,R0002487,INFO,registration_api,REQUEST_DONE,A021,873,registration request completed
+L000454,2026-09-29 09:10:00,R0002489,ERROR,registration_api,E409,A021,1429,registration request failed
+L000455,2026-09-29 09:10:15,R0002493,WARN,registration_api,SLOW_REQUEST,A021,1645,registration request exceeded latency threshold
+L000456,2026-09-29 09:10:25,R0002495,WARN,registration_api,SLOW_REQUEST,A021,1954,registration request exceeded latency threshold
+L000457,2026-09-29 09:10:36,R0002497,WARN,registration_api,SLOW_REQUEST,A021,1567,registration request exceeded latency threshold
+L000458,2026-09-29 09:11:07,R0002498,WARN,registration_api,SLOW_REQUEST,A021,2148,registration request exceeded latency threshold
+L000459,2026-09-29 09:11:07,R0002499,WARN,registration_api,SLOW_REQUEST,A021,2174,registration request exceeded latency threshold
+L000460,2026-09-29 09:11:27,R0002501,WARN,registration_api,SLOW_REQUEST,A021,1430,registration request exceeded latency threshold
+L000461,2026-09-29 09:12:13,R0002506,WARN,registration_api,SLOW_REQUEST,A021,2324,registration request exceeded latency threshold
+L000462,2026-09-29 09:12:56,R0002508,WARN,registration_api,SLOW_REQUEST,A021,1577,registration request exceeded latency threshold
+L000463,2026-09-29 09:12:57,R0002509,WARN,registration_api,SLOW_REQUEST,A021,1489,registration request exceeded latency threshold
+L000464,2026-09-29 09:13:24,R0002511,WARN,registration_api,SLOW_REQUEST,A021,1575,registration request exceeded latency threshold
+L000465,2026-09-29 09:13:34,R0002513,WARN,registration_api,SLOW_REQUEST,A021,1312,registration request exceeded latency threshold
+L000466,2026-09-29 09:13:57,R0002515,WARN,registration_api,SLOW_REQUEST,A021,1404,registration request exceeded latency threshold
+L000467,2026-09-29 09:14:19,R0002516,WARN,registration_api,SLOW_REQUEST,A021,1426,registration request exceeded latency threshold
+L000468,2026-09-29 09:14:50,R0002523,WARN,registration_api,SLOW_REQUEST,A021,1576,registration request exceeded latency threshold
+L000469,2026-09-29 09:14:57,R0002525,WARN,registration_api,SLOW_REQUEST,A021,1682,registration request exceeded latency threshold
+L000470,2026-09-29 09:15:02,R0002526,WARN,registration_api,SLOW_REQUEST,A021,1373,registration request exceeded latency threshold
+L000471,2026-09-29 09:15:15,R0002528,WARN,registration_api,SLOW_REQUEST,A021,2256,registration request exceeded latency threshold
+L000472,2026-09-29 09:15:26,R0002529,WARN,registration_api,SLOW_REQUEST,A021,1590,registration request exceeded latency threshold
+L000473,2026-09-29 09:16:31,R0002532,ERROR,registration_api,E409,A021,1481,registration request failed
+L000474,2026-09-29 09:16:33,R0002533,WARN,registration_api,SLOW_REQUEST,A021,1660,registration request exceeded latency threshold
+L000475,2026-09-29 09:16:51,R0002534,WARN,registration_api,SLOW_REQUEST,A021,1847,registration request exceeded latency threshold
+L000476,2026-09-29 09:17:00,R0002537,WARN,registration_api,SLOW_REQUEST,A021,1745,registration request exceeded latency threshold
+L000477,2026-09-29 09:17:01,R0002538,WARN,registration_api,SLOW_REQUEST,A021,2271,registration request exceeded latency threshold
+L000201,2026-09-29 09:17:04,R0001033,INFO,registration_api,REQUEST_DONE,A009,104,registration request completed
+L000478,2026-09-29 09:17:13,R0002539,WARN,registration_api,SLOW_REQUEST,A021,1419,registration request exceeded latency threshold
+L000665,2026-09-29 09:41:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000594,2026-09-29 10:18:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000565,2026-09-29 10:48:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000202,2026-09-29 10:58:32,R0001038,INFO,registration_api,REQUEST_DONE,A009,258,registration request completed
+L000210,2026-09-29 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A009,,activity information synchronized
+L000486,2026-09-29 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A021,,activity information synchronized
+L000540,2026-09-29 11:20:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000753,2026-09-29 13:05:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000689,2026-09-29 13:17:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000203,2026-09-29 13:21:36,R0001041,INFO,registration_api,REQUEST_DONE,A009,143,registration request completed
+L000745,2026-09-29 13:28:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000719,2026-09-29 15:11:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000541,2026-09-29 15:16:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000611,2026-09-29 15:58:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000194,2026-09-29 16:45:47,R0000983,INFO,registration_api,REQUEST_DONE,A008,286,registration request completed
+L000204,2026-09-29 17:13:30,R0001048,INFO,registration_api,REQUEST_DONE,A009,199,registration request completed
+L000735,2026-09-29 17:57:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000789,2026-09-29 18:12:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000608,2026-09-29 18:47:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000628,2026-09-29 19:02:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000603,2026-09-29 19:35:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000757,2026-09-29 20:30:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000479,2026-09-29 21:20:33,R0002551,INFO,registration_api,REQUEST_DONE,A021,350,registration request completed
+L000480,2026-09-29 23:39:24,R0002555,ERROR,registration_api,E500,A021,1066,registration request failed
+L000195,2026-09-29 23:46:04,R0000998,INFO,registration_api,REQUEST_DONE,A008,225,registration request completed
+L000205,2026-09-30 01:47:54,R0001062,INFO,registration_api,REQUEST_DONE,A009,96,registration request completed
+L000196,2026-09-30 05:28:24,R0001008,INFO,registration_api,REQUEST_DONE,A008,73,registration request completed
+L000197,2026-09-30 05:34:04,R0001009,INFO,registration_api,REQUEST_DONE,A008,224,registration request completed
+L000511,2026-09-30 06:29:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000550,2026-09-30 07:00:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000675,2026-09-30 07:05:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000578,2026-09-30 07:56:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000595,2026-09-30 07:58:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000206,2026-09-30 08:02:43,R0001079,INFO,registration_api,REQUEST_DONE,A009,244,registration request completed
+L000685,2026-09-30 08:23:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000683,2026-09-30 09:38:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000732,2026-09-30 10:17:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000481,2026-09-30 11:43:14,R0002574,INFO,registration_api,REQUEST_DONE,A021,365,registration request completed
+L000629,2026-09-30 12:53:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000482,2026-09-30 13:36:15,R0002580,INFO,registration_api,REQUEST_DONE,A021,444,registration request completed
+L000514,2026-09-30 14:36:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000688,2026-09-30 15:01:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000767,2026-09-30 15:18:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000570,2026-09-30 16:14:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000587,2026-09-30 16:32:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000552,2026-09-30 16:35:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000207,2026-09-30 17:06:32,R0001092,INFO,registration_api,REQUEST_DONE,A009,306,registration request completed
+L000761,2026-09-30 17:15:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000682,2026-09-30 17:28:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000532,2026-09-30 17:44:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000211,2026-09-30 18:00:15,R0001106,WARN,registration_api,SLOW_REQUEST,A010,1885,registration request exceeded latency threshold
+L000212,2026-09-30 18:00:24,R0001107,WARN,registration_api,SLOW_REQUEST,A010,1409,registration request exceeded latency threshold
+L000213,2026-09-30 18:00:43,R0001109,WARN,registration_api,SLOW_REQUEST,A010,1603,registration request exceeded latency threshold
+L000214,2026-09-30 18:00:48,R0001110,ERROR,registration_api,E409,A010,1047,registration request failed
+L000215,2026-09-30 18:01:44,R0001115,ERROR,registration_api,E409,A010,1996,registration request failed
+L000216,2026-09-30 18:01:45,R0001116,WARN,registration_api,SLOW_REQUEST,A010,1718,registration request exceeded latency threshold
+L000217,2026-09-30 18:01:51,R0001117,ERROR,registration_api,E409,A010,1582,registration request failed
+L000218,2026-09-30 18:01:57,R0001118,ERROR,registration_api,E409,A010,1076,registration request failed
+L000219,2026-09-30 18:02:04,R0001120,WARN,registration_api,SLOW_REQUEST,A010,1506,registration request exceeded latency threshold
+L000220,2026-09-30 18:02:08,R0001121,WARN,registration_api,SLOW_REQUEST,A010,1869,registration request exceeded latency threshold
+L000221,2026-09-30 18:03:59,R0001130,WARN,registration_api,SLOW_REQUEST,A010,1428,registration request exceeded latency threshold
+L000222,2026-09-30 18:04:01,R0001132,INFO,registration_api,REQUEST_DONE,A010,1271,registration request completed
+L000223,2026-09-30 18:04:02,R0001133,WARN,registration_api,SLOW_REQUEST,A010,1622,registration request exceeded latency threshold
+L000224,2026-09-30 18:04:06,R0001134,WARN,registration_api,SLOW_REQUEST,A010,1374,registration request exceeded latency threshold
+L000225,2026-09-30 18:04:41,R0001137,ERROR,registration_api,E409,A010,1743,registration request failed
+L000226,2026-09-30 18:04:49,R0001138,WARN,registration_api,SLOW_REQUEST,A010,1397,registration request exceeded latency threshold
+L000227,2026-09-30 18:05:04,R0001140,ERROR,registration_api,E409,A010,1523,registration request failed
+L000228,2026-09-30 18:05:17,R0001143,INFO,registration_api,REQUEST_DONE,A010,1134,registration request completed
+L000229,2026-09-30 18:05:21,R0001145,WARN,registration_api,SLOW_REQUEST,A010,1448,registration request exceeded latency threshold
+L000230,2026-09-30 18:05:26,R0001148,INFO,registration_api,REQUEST_DONE,A010,406,registration request completed
+L000231,2026-09-30 18:05:31,R0001150,WARN,registration_api,SLOW_REQUEST,A010,2032,registration request exceeded latency threshold
+L000232,2026-09-30 18:05:53,R0001153,ERROR,registration_api,E409,A010,1308,registration request failed
+L000233,2026-09-30 18:07:02,R0001160,INFO,registration_api,REQUEST_DONE,A010,882,registration request completed
+L000234,2026-09-30 18:07:35,R0001162,WARN,registration_api,SLOW_REQUEST,A010,1312,registration request exceeded latency threshold
+L000235,2026-09-30 18:07:48,R0001163,INFO,registration_api,REQUEST_DONE,A010,729,registration request completed
+L000236,2026-09-30 18:07:54,R0001164,WARN,registration_api,SLOW_REQUEST,A010,1321,registration request exceeded latency threshold
+L000237,2026-09-30 18:07:55,R0001165,WARN,registration_api,SLOW_REQUEST,A010,1940,registration request exceeded latency threshold
+L000238,2026-09-30 18:08:23,R0001167,WARN,registration_api,SLOW_REQUEST,A010,1671,registration request exceeded latency threshold
+L000239,2026-09-30 18:08:34,R0001168,WARN,registration_api,SLOW_REQUEST,A010,1979,registration request exceeded latency threshold
+L000240,2026-09-30 18:08:51,R0001169,ERROR,registration_api,E409,A010,2033,registration request failed
+L000241,2026-09-30 18:09:23,R0001173,INFO,registration_api,REQUEST_DONE,A010,411,registration request completed
+L000242,2026-09-30 18:09:28,R0001174,WARN,registration_api,SLOW_REQUEST,A010,1598,registration request exceeded latency threshold
+L000243,2026-09-30 18:09:44,R0001175,WARN,registration_api,SLOW_REQUEST,A010,1394,registration request exceeded latency threshold
+L000244,2026-09-30 18:10:36,R0001185,WARN,registration_api,SLOW_REQUEST,A010,1479,registration request exceeded latency threshold
+L000245,2026-09-30 18:11:06,R0001187,WARN,registration_api,SLOW_REQUEST,A010,1346,registration request exceeded latency threshold
+L000487,2026-09-30 18:11:08,R0002614,INFO,registration_api,REQUEST_DONE,A022,48,registration request completed
+L000246,2026-09-30 18:11:10,R0001189,WARN,registration_api,SLOW_REQUEST,A010,1526,registration request exceeded latency threshold
+L000247,2026-09-30 18:11:28,R0001190,WARN,registration_api,SLOW_REQUEST,A010,1557,registration request exceeded latency threshold
+L000248,2026-09-30 18:11:32,R0001192,WARN,registration_api,SLOW_REQUEST,A010,1476,registration request exceeded latency threshold
+L000249,2026-09-30 18:11:38,R0001193,WARN,registration_api,SLOW_REQUEST,A010,2002,registration request exceeded latency threshold
+L000250,2026-09-30 18:12:04,R0001197,WARN,registration_api,SLOW_REQUEST,A010,1569,registration request exceeded latency threshold
+L000251,2026-09-30 18:12:06,R0001198,ERROR,registration_api,E500,A010,1170,registration request failed
+L000252,2026-09-30 18:12:20,R0001199,WARN,registration_api,SLOW_REQUEST,A010,1318,registration request exceeded latency threshold
+L000253,2026-09-30 18:12:39,R0001202,WARN,registration_api,SLOW_REQUEST,A010,1362,registration request exceeded latency threshold
+L000254,2026-09-30 18:13:03,R0001204,ERROR,registration_api,E409,A010,802,registration request failed
+L000255,2026-09-30 18:13:11,R0001205,WARN,registration_api,SLOW_REQUEST,A010,1327,registration request exceeded latency threshold
+L000256,2026-09-30 18:13:36,R0001212,INFO,registration_api,REQUEST_DONE,A010,979,registration request completed
+L000257,2026-09-30 18:13:39,R0001213,INFO,registration_api,REQUEST_DONE,A010,734,registration request completed
+L000258,2026-09-30 18:13:45,R0001214,INFO,registration_api,REQUEST_DONE,A010,766,registration request completed
+L000259,2026-09-30 18:14:14,R0001217,WARN,registration_api,SLOW_REQUEST,A010,1903,registration request exceeded latency threshold
+L000260,2026-09-30 18:14:23,R0001218,WARN,registration_api,SLOW_REQUEST,A010,1402,registration request exceeded latency threshold
+L000261,2026-09-30 18:14:28,R0001219,WARN,registration_api,SLOW_REQUEST,A010,1679,registration request exceeded latency threshold
+L000262,2026-09-30 18:14:39,R0001220,INFO,registration_api,REQUEST_DONE,A010,690,registration request completed
+L000263,2026-09-30 18:14:49,R0001222,WARN,registration_api,SLOW_REQUEST,A010,1430,registration request exceeded latency threshold
+L000264,2026-09-30 18:14:54,R0001223,WARN,registration_api,SLOW_REQUEST,A010,2161,registration request exceeded latency threshold
+L000265,2026-09-30 18:14:58,R0001224,WARN,registration_api,SLOW_REQUEST,A010,1542,registration request exceeded latency threshold
+L000266,2026-09-30 18:15:04,R0001225,WARN,registration_api,SLOW_REQUEST,A010,1917,registration request exceeded latency threshold
+L000267,2026-09-30 18:15:20,R0001227,ERROR,registration_api,E409,A010,1231,registration request failed
+L000268,2026-09-30 18:15:30,R0001230,WARN,registration_api,SLOW_REQUEST,A010,1728,registration request exceeded latency threshold
+L000269,2026-09-30 18:15:40,R0001231,WARN,registration_api,SLOW_REQUEST,A010,2134,registration request exceeded latency threshold
+L000270,2026-09-30 18:15:41,R0001232,ERROR,registration_api,E409,A010,2352,registration request failed
+L000271,2026-09-30 18:15:54,R0001234,ERROR,registration_api,E409,A010,1117,registration request failed
+L000272,2026-09-30 18:16:50,R0001239,WARN,registration_api,SLOW_REQUEST,A010,1415,registration request exceeded latency threshold
+L000273,2026-09-30 18:17:18,R0001241,ERROR,registration_api,E409,A010,2650,registration request failed
+L000274,2026-09-30 18:17:23,R0001242,WARN,registration_api,SLOW_REQUEST,A010,1417,registration request exceeded latency threshold
+L000275,2026-09-30 18:17:35,R0001243,WARN,registration_api,SLOW_REQUEST,A010,1695,registration request exceeded latency threshold
+L000208,2026-09-30 18:20:40,R0001095,INFO,registration_api,REQUEST_DONE,A009,212,registration request completed
+L000545,2026-09-30 18:54:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000209,2026-09-30 18:55:42,R0001098,ERROR,registration_api,E409,A009,747,registration request failed
+L000635,2026-09-30 19:16:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000596,2026-09-30 19:17:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000277,2026-09-30 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A010,,activity information synchronized
+L000492,2026-09-30 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A022,,activity information synchronized
+L000488,2026-09-30 20:12:45,R0002627,ERROR,registration_api,E409,A022,849,registration request failed
+L000768,2026-09-30 20:26:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000600,2026-09-30 20:43:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000740,2026-09-30 20:49:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000517,2026-09-30 20:57:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000782,2026-09-30 23:11:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000678,2026-09-30 23:22:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000489,2026-10-01 03:43:01,R0002640,INFO,registration_api,REQUEST_DONE,A022,301,registration request completed
+L000484,2026-10-01 06:00:00,R0002599,INFO,registration_api,REQUEST_DONE,A021,144,registration request completed
+L000485,2026-10-01 06:14:00,R0002600,INFO,registration_api,REQUEST_DONE,A021,114,registration request completed
+L000660,2026-10-01 09:00:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000493,2026-10-01 09:02:16,R0002693,INFO,registration_api,REQUEST_DONE,A023,252,registration request completed
+L000278,2026-10-01 09:13:36,R0001332,ERROR,registration_api,E409,A011,722,registration request failed
+L000494,2026-10-01 09:16:31,R0002702,INFO,registration_api,REQUEST_DONE,A023,121,registration request completed
+L000687,2026-10-01 09:43:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000704,2026-10-01 10:08:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000279,2026-10-01 10:58:04,R0001335,INFO,registration_api,REQUEST_DONE,A011,233,registration request completed
+L000287,2026-10-01 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A011,,activity information synchronized
+L000499,2026-10-01 11:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A023,,activity information synchronized
+L000280,2026-10-01 11:48:15,R0001338,INFO,registration_api,REQUEST_DONE,A011,195,registration request completed
+L000585,2026-10-01 11:54:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000516,2026-10-01 12:19:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000679,2026-10-01 12:24:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000744,2026-10-01 13:07:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000751,2026-10-01 13:48:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000490,2026-10-01 14:01:13,R0002663,INFO,registration_api,REQUEST_DONE,A022,143,registration request completed
+L000281,2026-10-01 14:04:35,R0001345,INFO,registration_api,REQUEST_DONE,A011,376,registration request completed
+L000282,2026-10-01 14:12:48,R0001346,INFO,registration_api,REQUEST_DONE,A011,128,registration request completed
+L000592,2026-10-01 14:15:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000703,2026-10-01 14:21:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000711,2026-10-01 14:35:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000575,2026-10-01 15:29:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000788,2026-10-01 15:51:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000561,2026-10-01 16:11:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000667,2026-10-01 16:13:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000718,2026-10-01 17:12:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000624,2026-10-01 17:42:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000276,2026-10-01 18:37:50,R0001274,INFO,registration_api,REQUEST_DONE,A010,419,registration request completed
+L000648,2026-10-01 19:04:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000546,2026-10-01 19:22:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000283,2026-10-01 19:25:05,R0001359,INFO,registration_api,REQUEST_DONE,A011,315,registration request completed
+L000588,2026-10-01 19:39:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000653,2026-10-01 19:41:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000775,2026-10-01 21:43:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000699,2026-10-01 22:03:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000615,2026-10-01 22:33:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000708,2026-10-01 22:46:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000491,2026-10-01 23:36:37,R0002682,ERROR,registration_api,E409,A022,659,registration request failed
+L000496,2026-10-02 04:58:05,R0002777,INFO,registration_api,REQUEST_DONE,A023,153,registration request completed
+L000754,2026-10-02 06:38:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000605,2026-10-02 07:19:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000619,2026-10-02 08:11:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000637,2026-10-02 09:19:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000538,2026-10-02 10:04:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000620,2026-10-02 10:26:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000519,2026-10-02 12:09:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000495,2026-10-02 12:24:17,R0002758,ERROR,registration_api,E409,A023,279,registration request failed
+L000738,2026-10-02 13:05:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000606,2026-10-02 13:20:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000791,2026-10-02 14:00:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000284,2026-10-02 14:04:07,R0001393,ERROR,registration_api,E409,A011,460,registration request failed
+L000543,2026-10-02 16:16:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000563,2026-10-02 16:21:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000288,2026-10-02 18:00:55,R0001420,INFO,registration_api,REQUEST_DONE,A012,283,registration request completed
+L000500,2026-10-02 18:02:15,R0002790,INFO,registration_api,REQUEST_DONE,A024,356,registration request completed
+L000289,2026-10-02 18:06:25,R0001423,INFO,registration_api,REQUEST_DONE,A012,104,registration request completed
+L000656,2026-10-02 18:33:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000672,2026-10-02 18:40:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000574,2026-10-02 19:40:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000300,2026-10-02 20:00:00,,INFO,activity_service,ACTIVITY_UPDATED,A012,,activity information synchronized
+L000707,2026-10-02 20:48:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000760,2026-10-02 21:52:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000501,2026-10-02 22:13:17,R0002815,INFO,registration_api,REQUEST_DONE,A024,210,registration request completed
+L000502,2026-10-03 00:16:42,R0002816,INFO,registration_api,REQUEST_DONE,A024,309,registration request completed
+L000290,2026-10-03 00:41:07,R0001449,ERROR,registration_api,E409,A012,382,registration request failed
+L000503,2026-10-03 02:08:22,R0002822,INFO,registration_api,REQUEST_DONE,A024,206,registration request completed
+L000291,2026-10-03 03:37:09,R0001453,INFO,registration_api,REQUEST_DONE,A012,200,registration request completed
+L000292,2026-10-03 06:00:49,R0001456,INFO,registration_api,REQUEST_DONE,A012,101,registration request completed
+L000533,2026-10-03 06:47:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000497,2026-10-03 06:56:00,R0002782,INFO,registration_api,REQUEST_DONE,A023,236,registration request completed
+L000293,2026-10-03 07:00:31,R0001459,INFO,registration_api,REQUEST_DONE,A012,299,registration request completed
+L000723,2026-10-03 07:21:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000285,2026-10-03 07:24:00,R0001416,INFO,registration_api,REQUEST_DONE,A011,168,registration request completed
+L000286,2026-10-03 07:38:00,R0001417,INFO,registration_api,REQUEST_DONE,A011,238,registration request completed
+L000498,2026-10-03 08:06:00,R0002787,INFO,registration_api,REQUEST_DONE,A023,238,registration request completed
+L000521,2026-10-03 08:30:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000698,2026-10-03 09:08:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000294,2026-10-03 09:44:26,R0001464,INFO,registration_api,REQUEST_DONE,A012,161,registration request completed
+L000589,2026-10-03 10:02:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000295,2026-10-03 10:13:36,R0001465,ERROR,registration_api,E409,A012,496,registration request failed
+L000792,2026-10-03 11:52:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000677,2026-10-03 11:55:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000296,2026-10-03 12:31:36,R0001469,INFO,registration_api,REQUEST_DONE,A012,111,registration request completed
+L000504,2026-10-03 13:11:37,R0002841,INFO,registration_api,REQUEST_DONE,A024,218,registration request completed
+L000758,2026-10-03 13:12:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000602,2026-10-03 13:43:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000741,2026-10-03 13:43:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000720,2026-10-03 15:35:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000297,2026-10-03 15:41:53,R0001473,INFO,registration_api,REQUEST_DONE,A012,250,registration request completed
+L000580,2026-10-03 16:33:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000709,2026-10-03 16:38:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000781,2026-10-03 17:05:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000572,2026-10-03 17:12:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000556,2026-10-03 17:30:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000729,2026-10-03 18:28:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000298,2026-10-03 19:35:35,R0001480,INFO,registration_api,REQUEST_DONE,A012,242,registration request completed
+L000505,2026-10-03 20:25:14,R0002854,INFO,registration_api,REQUEST_DONE,A024,142,registration request completed
+L000681,2026-10-03 20:35:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000535,2026-10-03 20:47:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000299,2026-10-03 21:12:01,R0001485,INFO,registration_api,REQUEST_DONE,A012,144,registration request completed
+L000506,2026-10-03 21:43:48,R0002858,INFO,registration_api,REQUEST_DONE,A024,129,registration request completed
+L000507,2026-10-03 21:45:19,R0002859,INFO,registration_api,REQUEST_DONE,A024,135,registration request completed
+L000579,2026-10-03 21:53:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000645,2026-10-03 22:36:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000567,2026-10-03 22:48:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000701,2026-10-04 06:48:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000584,2026-10-04 07:18:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000523,2026-10-04 07:29:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000671,2026-10-04 08:36:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000690,2026-10-04 09:39:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000513,2026-10-04 10:34:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000566,2026-10-04 11:50:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000669,2026-10-04 12:38:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000694,2026-10-04 12:54:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000752,2026-10-04 15:13:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000777,2026-10-04 16:32:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000684,2026-10-04 17:18:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000651,2026-10-04 17:43:00,,WARN,static_assets,ASSET_RETRY,,,static asset retried once
+L000657,2026-10-04 18:08:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000776,2026-10-04 18:56:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000627,2026-10-04 21:20:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000734,2026-10-04 21:50:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000785,2026-10-04 21:53:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000725,2026-10-04 22:21:00,,INFO,http_access,HEALTH_OK,,,health check completed
+L000692,2026-10-04 22:40:00,,INFO,http_access,HEALTH_OK,,,health check completed

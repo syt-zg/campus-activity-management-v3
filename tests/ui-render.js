@@ -136,6 +136,8 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     check('运行统计页渲染无异常', errors.length === 0, errors.join(' | '));
     check('运行统计页含六项指标卡', /名额利用率/.test(metricsHtml) && /真实出席率/.test(metricsHtml) && /候补转化率/.test(metricsHtml));
     check('运行统计页含报名漏斗与趋势', /报名漏斗/.test(metricsHtml) && /天趋势/.test(metricsHtml));
+    check('运行统计页含接口耗时与候补压力', /接口 P95/.test(metricsHtml) && /候补压力/.test(metricsHtml));
+    check('运行统计页含重复提交去重行', /重复提交（已去重）/.test(metricsHtml));
 
     await win.__boot.navigate('admin-events');
     await wait(400);

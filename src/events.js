@@ -111,6 +111,8 @@ const EVENT_TYPES = Object.freeze({
   JOIN_PENDING: 'join_pending',
   JOIN_WAITLIST: 'join_waitlist',
   JOIN_BLOCKED: 'join_blocked',
+  JOIN_DUPLICATE: 'join_duplicate',
+  JOIN_TOO_EARLY: 'join_too_early',
   CANCEL: 'cancel',
   REVIEW_APPROVE: 'review_approve',
   REVIEW_REJECT: 'review_reject',

@@ -16,6 +16,13 @@ const Api = {
   },
   httpMessage(status) { return status === 404 ? '接口不存在，请检查后端版本' : status === 500 ? '服务器内部错误，请查看后端控制台' : `请求失败（HTTP ${status}）`; },
 
+  /* V3.0：请求幂等标识。同一动作复用同一 id，服务端据此去重
+   * （模拟数据中 126 条重复提交全部来自客户端重试）。 */
+  newRequestId() {
+    try { return crypto.randomUUID(); }
+    catch { return 'rq-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10); }
+  },
+
   /* ===== 认证 ===== */
   login: (username, password) => Api.request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
   register: data => Api.request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
@@ -30,7 +37,7 @@ const Api = {
   list: params => Api.request(`/activity/list?${new URLSearchParams(params)}`),
   detail: id => Api.request(`/activity/${id}`),
   myJoin: () => Api.request('/activity/myjoin'),
-  join: id => Api.request(`/activity/${id}/join`, { method: 'POST' }),
+  join: (id, requestId) => Api.request(`/activity/${id}/join`, { method: 'POST', body: JSON.stringify({ requestId }) }),
   cancel: (id, payload) => Api.request(`/activity/${id}/join`, { method: 'DELETE', body: JSON.stringify(payload || {}) }),
   confirmSeat: id => Api.request(`/activity/${id}/confirm`, { method: 'POST' }),
   myActivities: () => Api.request('/activity/my'),

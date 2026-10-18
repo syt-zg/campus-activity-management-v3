@@ -15,8 +15,10 @@
 - public/assets/js：前端业务逻辑（api / student / teacher / admin / app）
 - public/assets/css/style.css：界面样式
 - public/assets/avatars：系统内置的六种卡通头像
-- tests/v3-smoke.js：后端冒烟测试（29 项断言，可复跑）
-- tests/ui-render.js：前端渲染测试（jsdom，18 项断言，可复跑）
+- tests/v3-smoke.js：后端冒烟测试（37 项断言，可复跑）
+- tests/ui-render.js：前端渲染测试（jsdom，20 项断言，可复跑）
+- tests/perf-compare.js：写入合并前后对比（同负载对比同步写与合并写）
+- analysis/：模拟数据包的数据发现脚本、报告与字段映射表（只读，不参与运行）
 - docs：V3.0 变更说明与验证记录
 - data：首次运行使用的初始示例数据，不是用户当前正在使用的数据
 
@@ -36,6 +38,7 @@
 - PORT：服务端口
 - CAMPUS_ACTIVITY_DATA_DIR：数据目录
 - WAITLIST_CONFIRM_HOURS：递补确认时限（小时，默认 24；测试可用 0.0012 加速）
+- WRITE_COALESCE_MS：写入合并窗口（毫秒，默认 50；设为 0 退回同步写，用于对照）
 - JWT_SECRET：令牌签名密钥
 
 构建

@@ -158,6 +158,8 @@ function makeClient(base) {
   check('统计含取消原因分布', Array.isArray(metrics.data.cancelReasons) && metrics.data.cancelReasons.length >= 1, JSON.stringify(metrics.data.cancelReasons.slice(0, 3)));
   check('统计含按活动类型聚合', Array.isArray(metrics.data.byType) && metrics.data.byType.length >= 1);
   check('统计含近 7 天趋势', Array.isArray(metrics.data.trend) && metrics.data.trend.length === 7);
+  check('统计含接口耗时分布', metrics.data.perf && metrics.data.perf.p95 !== null, 'P95 ' + (metrics.data.perf ? metrics.data.perf.p95 : '—') + 'ms');
+  check('统计含候补压力', Array.isArray(metrics.data.waitlistPressure));
 
   const events = await call('/api/admin/events?limit=200', { token: adminToken });
   const types = new Set((events.data.list || []).map(item => item.type));
@@ -166,7 +168,52 @@ function makeClient(base) {
   const filtered = await call('/api/admin/events?type=cancel&limit=50', { token: adminToken });
   check('事件可按类型筛选', (filtered.data.list || []).every(item => item.type === 'cancel'));
 
-  /* ---------- 9. 回归：原有主流程仍可用 ---------- */
+  /* ---------- 9. V3.0 对照数据包新增的两项能力 ---------- */
+  const idem = await call('/api/activity', {
+    method: 'POST', token: teacherToken,
+    body: {
+      title: '幂等校验活动', type: '技能提升', content: '验证重复提交去重', place: 'D401',
+      start_time: '2030-04-01 09:00', end_time: '2030-04-01 11:00', max_num: 5
+    }
+  });
+  const rid = 'test-rid-' + Date.now();
+  const first = await call('/api/activity/' + idem.data.id + '/join', { method: 'POST', token: studentAToken, body: { requestId: rid } });
+  const second = await call('/api/activity/' + idem.data.id + '/join', { method: 'POST', token: studentAToken, body: { requestId: rid } });
+  check('同 requestId 重复提交被去重', second.code === 200 && /已处理过/.test(second.msg), second.msg);
+  const idemDetail = await call('/api/activity/' + idem.data.id, { token: teacherToken });
+  check('重复提交未重复占用名额', idemDetail.data.approvedCount === 1, '正式 ' + idemDetail.data.approvedCount + ' 人');
+  const third = await call('/api/activity/' + idem.data.id + '/join', { method: 'POST', token: studentAToken, body: { requestId: rid + '-new' } });
+  check('换 requestId 后仍按“已报名”拒绝', third.code !== 200 && /已报名/.test(third.msg), third.msg);
+
+  // 候补深度信息（模拟数据显示热门活动候补可达名额 3～5 倍）
+  const depth = await call('/api/activity', {
+    method: 'POST', token: teacherToken,
+    body: {
+      title: '候补深度校验活动', type: '文化艺术', content: '验证候补提示', place: 'E501',
+      start_time: '2030-05-01 09:00', end_time: '2030-05-01 11:00', max_num: 1
+    }
+  });
+  const depthFull = await call('/api/activity/' + depth.data.id + '/join', { method: 'POST', token: tokenD, body: { requestId: 'depth-a-' + Date.now() } });
+  const depthWait = await call('/api/activity/' + depth.data.id + '/join', { method: 'POST', token: tokenC, body: { requestId: 'depth-b-' + Date.now() } });
+  check('满员后报名响应返回候补深度信息',
+    depthFull.code === 200 && depthWait.data && depthWait.data.waitlistDepth && depthWait.data.waitlistDepth.count === 1,
+    depthWait.data ? JSON.stringify(depthWait.data.waitlistDepth) : depthWait.msg);
+
+  // 错峰开放：未到开放时间应拒绝报名（模拟数据 24 个活动只有 09:00/18:00 两个开放时刻）
+  const staggered = await call('/api/activity', {
+    method: 'POST', token: teacherToken,
+    body: {
+      title: '错峰开放校验', type: '公益实践', content: '验证开放时间', place: 'F601',
+      start_time: '2030-07-01 09:00', end_time: '2030-07-01 11:00', max_num: 10,
+      registration_open: '2030-06-01 09:00'
+    }
+  });
+  const early = await call('/api/activity/' + staggered.data.id + '/join', { method: 'POST', token: studentAToken, body: { requestId: 'early-' + Date.now() } });
+  check('未到开放时间拒绝报名', early.code !== 200 && /开放/.test(early.msg), early.msg);
+  const openDetail = await call('/api/activity/' + staggered.data.id, { token: studentAToken });
+  check('活动详情带开放状态', openDetail.data.signupOpen === false, 'signupOpen=' + openDetail.data.signupOpen);
+
+  /* ---------- 10. 回归：原有主流程仍可用 ---------- */
   const myJoin = await call('/api/activity/myjoin', { token: studentAToken });
   check('学生“我的活动”接口正常', myJoin.code === 200 && Array.isArray(myJoin.data));
   const myActivities = await call('/api/activity/my', { token: teacherToken });

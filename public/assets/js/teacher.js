@@ -35,6 +35,7 @@ function toApiData(data) {
         notice: data.notice, place: data.location, start_time: data.startTime,
         end_time: data.endTime, max_num: data.maxParticipants,
         require_review: data.requireReview === true, eligibility: data.eligibility || '',
-        eligibility_rule: data.eligibilityRule || ''
+        eligibility_rule: data.eligibilityRule || '',
+        registration_open: data.registrationOpen || ''
     };
 }

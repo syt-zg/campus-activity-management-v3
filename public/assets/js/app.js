@@ -51,6 +51,8 @@ const normalizeActivity = (item = {}) => {
         requireReview: item.requireReview === true,
         eligibility: item.eligibility || '',
         eligibilityRule: item.eligibilityRule || '',
+        registrationOpen: formatDate(item.registrationOpen),
+        signupOpen: item.signupOpen !== false,
         cancelledCount: number(item.cancelledCount),
         attendedCount: number(item.attendedCount),
         needConfirmCount: number(item.needConfirmCount),
@@ -234,6 +236,8 @@ function signupButton(activity) {
         return { label, disabled: true, kind: 'ghost' };
     }
     if (activity.status !== '未开始') return { label: activity.status === '进行中' ? '活动进行中' : '已结束', disabled: true, kind: 'ghost' };
+    // V3.0：错峰开放——未到开放时间时按钮直接说明时间，避免无效点击
+    if (activity.signupOpen === false) return { label: '报名将于 ' + (activity.registrationOpen || '').slice(5, 16) + ' 开放', disabled: true, kind: 'ghost' };
     if (activity.requireReview) return { label: '提交报名申请', disabled: false, kind: 'primary' };
     if (activity.remaining > 0) return { label: '立即报名', disabled: false, kind: 'primary' };
     return { label: '加入候补', disabled: false, kind: 'warning' };
@@ -263,7 +267,13 @@ function renderActivityCards(activities) {
         const button = signupButton(activity);
         const seats = '<span>正式 ' + activity.approvedCount + ' / ' + activity.maxParticipants + ' 人' +
             (activity.waitlistCount ? '，候补 ' + activity.waitlistCount + ' 人' : '') + '</span>';
-        return '<div class="activity-card"><div class="card-header"><div class="card-title"><span>' + escapeHtml(activity.title) + '</span>' + statusTag(activity.status) + '</div><div class="card-tags">' + typeTag(activity.type) + (activity.requireReview ? reviewTag(true) : '') + '</div></div><div class="card-body"><div class="card-info"><span class="card-info-icon">🕒</span><span>' + escapeHtml(activity.startTime) + ' ~ ' + escapeHtml(activity.endTime.split(' ')[1] || '') + '</span></div><div class="card-info"><span class="card-info-icon">📍</span><span>' + escapeHtml(activity.location) + '</span></div><div class="card-info"><span class="card-info-icon">👥</span>' + seats + '</div>' + (activity.myRegistration ? '<div class="card-info"><span class="card-info-icon">📌</span><span>我的状态：</span>' + regTag(activity.myRegistration.status, activity.myRegistration.position) + '</div>' : '') + '<p class="card-desc">' + escapeHtml(activity.description) + '</p></div><div class="card-footer"><span class="publisher">发布老师：' + escapeHtml(activity.publisher) + '</span><div class="card-actions"><button class="btn btn-secondary btn-sm btn-detail" data-id="' + activity.id + '">查看详情</button><button class="btn btn-' + button.kind + ' btn-sm btn-signup" data-id="' + activity.id + '" ' + (button.disabled ? 'disabled' : '') + '>' + button.label + '</button></div></div></div>';
+        // V3.0：候补深度提示。模拟数据显示热门活动候补可达名额的 3～5 倍，
+        // 而候补转化率只有 14.8%，学生需要"这条队大概等不到"的判断依据。
+        const waitRatio = activity.maxParticipants ? activity.waitlistCount / activity.maxParticipants : 0;
+        const depthTip = (activity.waitlistCount && waitRatio >= 2)
+            ? '<div class="card-info" style="color:var(--warning)"><span class="card-info-icon">⏳</span><span>候补已是名额的 ' + waitRatio.toFixed(1) + ' 倍，递补机会较小，建议同时关注其他活动</span></div>'
+            : '';
+        return '<div class="activity-card"><div class="card-header"><div class="card-title"><span>' + escapeHtml(activity.title) + '</span>' + statusTag(activity.status) + '</div><div class="card-tags">' + typeTag(activity.type) + (activity.requireReview ? reviewTag(true) : '') + '</div></div><div class="card-body"><div class="card-info"><span class="card-info-icon">🕒</span><span>' + escapeHtml(activity.startTime) + ' ~ ' + escapeHtml(activity.endTime.split(' ')[1] || '') + '</span></div><div class="card-info"><span class="card-info-icon">📍</span><span>' + escapeHtml(activity.location) + '</span></div><div class="card-info"><span class="card-info-icon">👥</span>' + seats + '</div>' + depthTip + (activity.myRegistration ? '<div class="card-info"><span class="card-info-icon">📌</span><span>我的状态：</span>' + regTag(activity.myRegistration.status, activity.myRegistration.position) + '</div>' : '') + '<p class="card-desc">' + escapeHtml(activity.description) + '</p></div><div class="card-footer"><span class="publisher">发布老师：' + escapeHtml(activity.publisher) + '</span><div class="card-actions"><button class="btn btn-secondary btn-sm btn-detail" data-id="' + activity.id + '">查看详情</button><button class="btn btn-' + button.kind + ' btn-sm btn-signup" data-id="' + activity.id + '" ' + (button.disabled ? 'disabled' : '') + '>' + button.label + '</button></div></div></div>';
     }).join('');
 }
 function bindCardEvents() {
@@ -292,6 +302,7 @@ async function showActivityDetail(activityId) {
             ? '仅限「' + activity.eligibilityRule + '」（按所属班级/年级匹配）' + (activity.eligibility ? '；' + activity.eligibility : '')
             : activity.eligibility;
         if (ruleText) rows.splice(7, 0, ['参加资格', ruleText]);
+        if (activity.registrationOpen) rows.splice(2, 0, ['报名开放时间', activity.registrationOpen + (activity.signupOpen ? '（已开放）' : '（未开放）')]);
         if (isStudent && reg) rows.push(['我的报名状态', reg.status + (reg.status === '候补中' ? '（第 ' + reg.position + ' 位）' : '') + (reg.needConfirm ? '，请于 ' + formatDate(reg.confirmDeadline) + ' 前确认名额' : '') + (reg.attended === true ? '，已出席' : '')]);
         const modal = document.createElement('div'); modal.className = 'modal-mask';
         const footer = isStudent && !reg && activity.status === '未开始'
@@ -318,8 +329,13 @@ async function showSignupConfirm(activityId) {
         modal.innerHTML = '<div class="modal"><div class="modal-header"><h3 class="modal-title">' + (activity.requireReview ? '提交报名申请' : isWaitlist ? '加入候补队列' : '报名确认') + '</h3><span class="modal-close">✕</span></div><div class="modal-body"><p>确定要报名参加 <strong>「' + escapeHtml(activity.title) + '」</strong> 吗？</p><p class="hint-line">活动时间：' + escapeHtml(activity.startTime) + '</p><p class="hint-line">活动地点：' + escapeHtml(activity.location) + '</p>' + hint + '</div><div class="modal-footer"><button class="btn btn-secondary modal-cancel">取消</button><button class="btn btn-primary modal-confirm">' + (isWaitlist ? '确认加入候补' : '确认报名') + '</button></div></div>';
         document.body.appendChild(modal); const close = () => modal.remove();
         modal.querySelector('.modal-close').addEventListener('click', close); modal.querySelector('.modal-cancel').addEventListener('click', close);
-        modal.querySelector('.modal-confirm').addEventListener('click', async () => {
-            const result = await Student.signup(activityId); close();
+        // V3.0：整个弹窗生命周期复用一个 requestId，连点或网络重试都不会重复占名额
+        const requestId = Api.newRequestId();
+        modal.querySelector('.modal-confirm').addEventListener('click', async event => {
+            const button = event.currentTarget;
+            if (button.disabled) return;
+            button.disabled = true; button.textContent = '提交中...';
+            const result = await Student.signup(activityId, requestId); close();
             if (!result.success) return showToast(result.message, 'error');
             const reg = result.data?.registration;
             showToast(reg?.status === '待审核' ? '报名申请已提交，等待教师审核'
@@ -472,10 +488,10 @@ async function confirmDelete(activityId) { if (!confirm('确定要删除该活�
 
 async function showActivityForm(activityId = null) {
     const isEdit = Boolean(activityId);
-    let activity = { title: '', type: '', startTime: '', endTime: '', location: '', maxParticipants: 50, description: '', notice: '', requireReview: false, eligibility: '' };
+    let activity = { title: '', type: '', startTime: '', endTime: '', location: '', maxParticipants: 50, description: '', notice: '', requireReview: false, eligibility: '', eligibilityRule: '', registrationOpen: '' };
     if (isEdit) activity = normalizeActivity(await Api.detail(activityId));
     const modal = document.createElement('div'); modal.className = 'modal-mask';
-    modal.innerHTML = '<div class="modal modal-lg"><div class="modal-header"><h3 class="modal-title">' + (isEdit ? '编辑活动' : '发布新活动') + '</h3><span class="modal-close">✕</span></div><div class="modal-body"><div class="input-group"><label class="input-label">活动标题 *</label><input class="input-field" id="f-title" value="' + escapeHtml(activity.title) + '" maxlength="50"></div><div class="flex gap-8"><div class="input-group" style="flex:1"><label class="input-label">活动类型 *</label><select class="input-field" id="f-type"><option value="">请选择</option>' + ACTIVITY_TYPES.map(type => '<option value="' + type + '" ' + (type === activity.type ? 'selected' : '') + '>' + type + '</option>').join('') + '</select></div><div class="input-group" style="flex:1"><label class="input-label">招募人数（正式名额上限）*</label><input type="number" class="input-field" id="f-max" value="' + activity.maxParticipants + '" min="1"></div></div><div class="flex gap-8"><div class="input-group" style="flex:1"><label class="input-label">开始时间 *</label><input type="datetime-local" class="input-field" id="f-start" value="' + inputDate(activity.startTime) + '"></div><div class="input-group" style="flex:1"><label class="input-label">结束时间 *</label><input type="datetime-local" class="input-field" id="f-end" value="' + inputDate(activity.endTime) + '"></div></div><div class="input-group"><label class="input-label">活动地点 *</label><input class="input-field" id="f-location" value="' + escapeHtml(activity.location) + '" maxlength="50"></div><div class="input-group"><label class="input-label">活动简介 *</label><textarea class="input-field" id="f-desc" rows="3" maxlength="300">' + escapeHtml(activity.description) + '</textarea></div><div class="input-group"><label class="input-label">活动须知</label><textarea class="input-field" id="f-notice" rows="2" maxlength="200">' + escapeHtml(activity.notice) + '</textarea></div><div class="input-group"><label class="checkbox"><input type="checkbox" id="f-review" ' + (activity.requireReview ? 'checked' : '') + '><span>该活动需要审核报名资格</span></label><div class="form-hint">勾选后，学生报名先进入“待审核”，由您确认通过或拒绝；通过后仍按剩余名额决定正式参加或候补。</div></div><div class="input-group"><label class="input-label">参加资格说明（需要审核时建议填写）</label><textarea class="input-field" id="f-eligibility" rows="2" maxlength="200" placeholder="例如：仅限计算机专业大二以上学生">' + escapeHtml(activity.eligibility) + '</textarea></div><div class="input-group"><label class="input-label">资格限定关键词（选填，留空表示不限）</label><input class="input-field" id="f-eligibility-rule" value="' + escapeHtml(activity.eligibilityRule || '') + '" maxlength="30" placeholder="按学生所属班级匹配，例如：计算机 或 2101"><div class="form-hint">填写后系统会在报名时校验：学生所属班级不包含该关键词则无法报名。这是可执行的规则，与上面的文字说明不同。</div></div></div><div class="modal-footer"><button class="btn btn-secondary modal-cancel">取消</button><button class="btn btn-primary modal-confirm">' + (isEdit ? '保存修改' : '确认发布') + '</button></div></div>';
+    modal.innerHTML = '<div class="modal modal-lg"><div class="modal-header"><h3 class="modal-title">' + (isEdit ? '编辑活动' : '发布新活动') + '</h3><span class="modal-close">✕</span></div><div class="modal-body"><div class="input-group"><label class="input-label">活动标题 *</label><input class="input-field" id="f-title" value="' + escapeHtml(activity.title) + '" maxlength="50"></div><div class="flex gap-8"><div class="input-group" style="flex:1"><label class="input-label">活动类型 *</label><select class="input-field" id="f-type"><option value="">请选择</option>' + ACTIVITY_TYPES.map(type => '<option value="' + type + '" ' + (type === activity.type ? 'selected' : '') + '>' + type + '</option>').join('') + '</select></div><div class="input-group" style="flex:1"><label class="input-label">招募人数（正式名额上限）*</label><input type="number" class="input-field" id="f-max" value="' + activity.maxParticipants + '" min="1"></div></div><div class="flex gap-8"><div class="input-group" style="flex:1"><label class="input-label">开始时间 *</label><input type="datetime-local" class="input-field" id="f-start" value="' + inputDate(activity.startTime) + '"></div><div class="input-group" style="flex:1"><label class="input-label">结束时间 *</label><input type="datetime-local" class="input-field" id="f-end" value="' + inputDate(activity.endTime) + '"></div></div><div class="input-group"><label class="input-label">报名开放时间（选填）</label><input type="datetime-local" class="input-field" id="f-open" value="' + inputDate(activity.registrationOpen) + '"><div class="form-hint">留空表示发布后立即可以报名。设置后学生在此时间前无法报名；用于错峰，避免多个活动同一时刻开抢。</div></div><div class="input-group"><label class="input-label">活动地点 *</label><input class="input-field" id="f-location" value="' + escapeHtml(activity.location) + '" maxlength="50"></div><div class="input-group"><label class="input-label">活动简介 *</label><textarea class="input-field" id="f-desc" rows="3" maxlength="300">' + escapeHtml(activity.description) + '</textarea></div><div class="input-group"><label class="input-label">活动须知</label><textarea class="input-field" id="f-notice" rows="2" maxlength="200">' + escapeHtml(activity.notice) + '</textarea></div><div class="input-group"><label class="checkbox"><input type="checkbox" id="f-review" ' + (activity.requireReview ? 'checked' : '') + '><span>该活动需要审核报名资格</span></label><div class="form-hint">勾选后，学生报名先进入“待审核”，由您确认通过或拒绝；通过后仍按剩余名额决定正式参加或候补。</div></div><div class="input-group"><label class="input-label">参加资格说明（需要审核时建议填写）</label><textarea class="input-field" id="f-eligibility" rows="2" maxlength="200" placeholder="例如：仅限计算机专业大二以上学生">' + escapeHtml(activity.eligibility) + '</textarea></div><div class="input-group"><label class="input-label">资格限定关键词（选填，留空表示不限）</label><input class="input-field" id="f-eligibility-rule" value="' + escapeHtml(activity.eligibilityRule || '') + '" maxlength="30" placeholder="按学生所属班级匹配，例如：计算机 或 2101"><div class="form-hint">填写后系统会在报名时校验：学生所属班级不包含该关键词则无法报名。这是可执行的规则，与上面的文字说明不同。</div></div></div><div class="modal-footer"><button class="btn btn-secondary modal-cancel">取消</button><button class="btn btn-primary modal-confirm">' + (isEdit ? '保存修改' : '确认发布') + '</button></div></div>';
     document.body.appendChild(modal); const close = () => modal.remove();
     modal.querySelector('.modal-close').addEventListener('click', close); modal.querySelector('.modal-cancel').addEventListener('click', close);
     modal.addEventListener('click', event => { if (event.target === modal) close(); });
@@ -486,7 +502,8 @@ async function showActivityForm(activityId = null) {
             location: document.getElementById('f-location').value.trim(), maxParticipants: Number(document.getElementById('f-max').value),
             description: document.getElementById('f-desc').value.trim(), notice: document.getElementById('f-notice').value.trim(),
             requireReview: document.getElementById('f-review').checked, eligibility: document.getElementById('f-eligibility').value.trim(),
-            eligibilityRule: document.getElementById('f-eligibility-rule').value.trim()
+            eligibilityRule: document.getElementById('f-eligibility-rule').value.trim(),
+            registrationOpen: document.getElementById('f-open').value.replace('T', ' ')
         };
         if (!data.title || !data.type || !data.startTime || !data.endTime || !data.location || !data.description || data.maxParticipants <= 0) return showToast('请完整填写必填项', 'error');
         if (data.startTime >= data.endTime) return showToast('结束时间必须晚于开始时间', 'error');
@@ -622,6 +639,14 @@ function metricCard(label, value, suffix, color, hint) {
     return '<div class="stat-card" style="border-left-color:' + (color || 'var(--primary)') + '"><div class="stat-value" style="color:' + (color || 'var(--primary)') + '">' + value + (suffix || '') + '</div><div class="stat-label">' + label + '</div>' + (hint ? '<div class="cell-sub">' + hint + '</div>' : '') + '</div>';
 }
 
+function pressureTable(list) {
+    if (!list || !list.length) return '<div class="empty-state" style="padding:24px"><div class="empty-icon">✅</div><div>当前没有候补积压</div></div>';
+    return '<div class="activity-table"><table><thead><tr><th>活动</th><th>名额</th><th>候补</th><th>候补/名额</th><th>剩余空位</th><th>判断</th></tr></thead><tbody>' +
+        list.map(row => '<tr><td>' + escapeHtml(row.title) + '</td><td>' + row.capacity + '</td><td>' + row.waitlist + '</td><td><strong>' + row.ratio + '</strong> 倍</td><td>' + row.idleSeats + '</td><td class="cell-sub">' +
+            (row.ratio >= 2 ? '候补过深，建议引导分流' : row.ratio >= 1 ? '候补偏高，注意确认窗口' : '正常') + '</td></tr>').join('') +
+        '</tbody></table></div>';
+}
+
 async function renderAdminMetrics() {
     if (!renderAdminMetrics.days) renderAdminMetrics.days = 7;
     const data = await Admin.getMetrics(renderAdminMetrics.days);
@@ -645,6 +670,8 @@ async function renderAdminMetrics() {
         metricCard('真实出席率', r.attendanceRate === null ? '—' : r.attendanceRate, r.attendanceRate === null ? '' : '%', '#16a34a', r.attendanceRate === null ? '尚无签到记录' : '已出席 / 已记录出席') +
         metricCard('审核等待中位数', r.approveWaitMedian === null ? '—' : r.approveWaitMedian, r.approveWaitMedian === null ? '' : ' 分钟', '#d97706', '样本 ' + r.reviewedCount + ' 条') +
         metricCard('审核等待 P90', r.approveWaitP90 === null ? '—' : r.approveWaitP90, r.approveWaitP90 === null ? '' : ' 分钟', '#d97706', '长尾明显说明审核堆积') +
+        metricCard('接口 P95', data.perf.p95 === null ? '—' : data.perf.p95, data.perf.p95 === null ? '' : ' ms', '#0891b2', '样本 ' + data.perf.samples + ' 次') +
+        metricCard('慢请求占比', data.perf.slowRate, '%', '#dc2626', '≥100ms 计为慢请求') +
         '</div>' +
         '<div class="page-header" style="margin-top:24px"><h2 class="page-title">报名漏斗</h2><p class="page-desc">从报名到出席的各环节转化，缺口就是改进点</p></div>' +
         '<div class="activity-table"><table><thead><tr><th>环节</th><th>数量</th><th>说明</th></tr></thead><tbody>' +
@@ -656,11 +683,14 @@ async function renderAdminMetrics() {
         '<tr><td>递补后确认</td><td><strong>' + f.confirmed + '</strong></td><td class="cell-sub">学生主动确认名额</td></tr>' +
         '<tr><td>确认超时释放</td><td><strong>' + f.expired + '</strong></td><td class="cell-sub">名额被系统回收并顺延</td></tr>' +
         '<tr><td>取消报名</td><td><strong>' + f.cancelled + '</strong></td><td class="cell-sub">含退出候补</td></tr>' +
+        '<tr><td>重复提交（已去重）</td><td><strong>' + (f.duplicate || 0) + '</strong></td><td class="cell-sub">同一 requestId 未重复占名额</td></tr>' +
         '<tr><td>审核通过 / 拒绝</td><td><strong>' + (f.reviewed - f.rejected) + ' / ' + f.rejected + '</strong></td><td class="cell-sub">拒绝率 ' + (f.reviewed ? Math.round(f.rejected / f.reviewed * 100) : 0) + '%</td></tr>' +
         '</tbody></table></div>' +
         '<div class="admin-grid" style="margin-top:24px"><div class="admin-card"><h3>取消原因分布</h3><div class="activity-table"><table><thead><tr><th>原因</th><th>次数</th><th>占比</th></tr></thead><tbody>' + reasonRows + '</tbody></table></div></div><div class="admin-card"><h3>按活动类型</h3><div class="activity-table"><table><thead><tr><th>类型</th><th>活动</th><th>正式/上限</th><th>利用率</th><th>候补</th><th>取消</th></tr></thead><tbody>' + typeRows + '</tbody></table></div></div></div>' +
         '<div class="page-header" style="margin-top:24px"><h2 class="page-title">近 ' + data.days + ' 天趋势</h2><p class="page-desc">按事件发生日期聚合，可据此判断报名高峰与名额空置时段</p></div>' +
         '<div class="activity-table"><table><thead><tr><th>日期</th><th>报名</th><th>递补</th><th>取消</th><th>出席记录</th><th>报名量</th></tr></thead><tbody>' + trendRows + '</tbody></table></div>' +
+        '<div class="page-header" style="margin-top:24px"><h2 class="page-title">候补压力</h2><p class="page-desc">候补人数 / 名额。模拟数据中热门活动可达 3～5 倍，而整体递补转化率仅 14.8%，因此需要提前告知学生等待预期</p></div>' +
+        pressureTable(data.waitlistPressure) +
         '<div class="page-header" style="margin-top:24px"><h2 class="page-title">最近事件</h2><p class="page-desc">最新 12 条过程事件，完整日志见“运行日志”</p></div>' +
         '<div class="activity-table"><table><thead><tr><th>时间</th><th>类型</th><th>操作人</th><th>活动</th><th>说明</th></tr></thead><tbody>' + eventRows + '</tbody></table></div>';
 
@@ -677,7 +707,8 @@ const EVENT_TYPE_LABEL = {
     activity_create: ['发布活动', 'status-joined'], activity_update: ['修改活动', 'status-pending'],
     activity_archive: ['归档活动', 'status-ended'], activity_suspend: ['停用活动', 'status-rejected'], activity_resume: ['恢复活动', 'status-joined'],
     join_approved: ['报名成功', 'status-joined'], join_pending: ['提交待审核', 'status-pending'], join_waitlist: ['进入候补', 'status-waitlist'],
-    join_blocked: ['资格拦截', 'status-rejected'], cancel: ['取消报名', 'status-rejected'],
+    join_blocked: ['资格拦截', 'status-rejected'], join_duplicate: ['重复提交去重', 'status-noreview'],
+    join_too_early: ['未到开放时间', 'status-pending'], cancel: ['取消报名', 'status-rejected'],
     review_approve: ['审核通过', 'status-joined'], review_reject: ['审核拒绝', 'status-rejected'],
     promote: ['候补递补', 'status-waitlist'], waitlist_confirm: ['确认名额', 'status-joined'], waitlist_expire: ['确认超时释放', 'status-rejected'],
     checkin: ['出席记录', 'status-ongoing'], export: ['导出名单', 'status-noreview'],

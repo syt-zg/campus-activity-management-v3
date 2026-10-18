@@ -1,0 +1,47 @@
+﻿file_name,field_name,data_type,description
+activity.csv,activity_id,string,活动匿名标识
+activity.csv,activity_name,string,活动名称
+activity.csv,category,string,活动类型
+activity.csv,organizer_id,string,组织教师匿名标识
+activity.csv,registration_open,datetime,报名开放时间
+activity.csv,activity_start,datetime,活动开始时间
+activity.csv,capacity,integer,活动设置的报名容量
+activity.csv,location,string,活动地点
+user_behavior.csv,event_id,string,埋点事件标识（可能含重复采集记录）
+user_behavior.csv,event_ts,datetime,事件发生时间
+user_behavior.csv,student_id,string,学生匿名标识；少量记录可能为空
+user_behavior.csv,session_id,string,一次访问会话标识
+user_behavior.csv,activity_id,string,相关活动标识；与具体活动无关时为空
+user_behavior.csv,page,string,当前页面标识
+user_behavior.csv,event_name,string,事件名称
+user_behavior.csv,device,string,访问设备类型；部分记录可能为空
+registration_log.csv,request_id,string,业务请求标识
+registration_log.csv,request_ts,datetime,请求开始处理的时间
+registration_log.csv,student_id,string,学生匿名标识
+registration_log.csv,activity_id,string,相关活动标识
+registration_log.csv,action,enum,操作类型：apply 报名申请；cancel 取消
+registration_log.csv,result,enum,业务结果：accepted、waitlisted、duplicate、capacity_conflict、server_error、cancelled
+registration_log.csv,latency_ms,integer,请求处理耗时，单位毫秒
+registration_log.csv,client_retry,0/1,客户端标注是否为再次提交（仅供参考，不等同于服务端幂等判断）
+waitlist_log.csv,change_id,string,状态变化记录标识
+waitlist_log.csv,application_id,string,申请标识；关联首次进入候补的 request_id
+waitlist_log.csv,student_id,string,学生匿名标识
+waitlist_log.csv,activity_id,string,相关活动标识
+waitlist_log.csv,change_ts,datetime,状态变化时间
+waitlist_log.csv,old_status,enum,变化前状态；none 表示尚无记录
+waitlist_log.csv,new_status,enum,变化后状态：waiting 或 accepted
+waitlist_log.csv,reason_code,enum,系统记录的状态变化原因代码
+feedback.csv,feedback_id,string,反馈标识
+feedback.csv,submit_ts,datetime,反馈提交时间
+feedback.csv,student_id,string,学生匿名标识
+feedback.csv,activity_id,string,相关活动标识
+feedback.csv,feedback_text,string,去标识化后的模拟反馈原文
+system_log.csv,log_id,string,日志标识
+system_log.csv,event_ts,datetime,日志记录时间
+system_log.csv,request_id,string,关联业务请求标识；通用系统事件可为空
+system_log.csv,level,enum,日志级别 INFO、WARN、ERROR
+system_log.csv,component,string,记录日志的组件
+system_log.csv,event_code,string,事件编码
+system_log.csv,activity_id,string,相关活动标识，可为空
+system_log.csv,elapsed_ms,integer,日志记录的耗时（部分事件为空）
+system_log.csv,message,string,处理信息，供上下文理解
