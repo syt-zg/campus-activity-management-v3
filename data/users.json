@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "username": "10001",
+    "real_name": "王建国",
+    "class_name": "计算机科学与技术",
+    "age": 38,
+    "role": "teacher",
+    "teacherAuthenticated": true,
+    "passwordHash": "scrypt$bec6676df2357aaf0cd4fa0bd3208dc5$cdb8460787311ce00154c45687707524497647fe50e4fa2692f8472e3f452e97e93a6f7668b318b6de1b98a3c9c5c8b0c4fb4c6f671e5aba413dcd72cbec8cb2",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "username": "10002",
+    "real_name": "李敏华",
+    "class_name": "外国语学院",
+    "age": 35,
+    "role": "teacher",
+    "teacherAuthenticated": true,
+    "passwordHash": "scrypt$31ced99eb68846c3adb34dc75a2bf876$77bf7da29d9dac046f98b35991dd996b2d30778e32b8e1f88de50e7fa2949e671c73cbcbe28f17c924a78811210eeb578cc35a4ae7fb98802af505611cde8100",
+    "status": "active"
+  },
+  {
+    "id": 3,
+    "username": "10003",
+    "real_name": "张志强",
+    "class_name": "体育学院",
+    "age": 41,
+    "role": "teacher",
+    "teacherAuthenticated": true,
+    "passwordHash": "scrypt$9a2b7a9631eda10a4607742f60121782$c280edc441f168630a89bdc5d2058794b8361f0df87f9b03f13b2aaf5ce1cb217bcbcc1d4e6980333283503b39360f8dab153144601b107719a317789e978c4d",
+    "status": "active"
+  },
+  {
+    "id": 4,
+    "username": "10004",
+    "real_name": "赵雪梅",
+    "class_name": "艺术学院",
+    "age": 32,
+    "role": "teacher",
+    "teacherAuthenticated": true,
+    "passwordHash": "scrypt$1c7f7a00021e21b49bb365d70d58f183$2956ab6b1ff62f75325fb8b72942477f0809311df2a93dd602274cd2a36109a6a2e07369899fe4f73644cb74fa071d5ce929d81564e0da67287332f731aae06d",
+    "status": "active"
+  },
+  {
+    "id": 5,
+    "username": "10005",
+    "real_name": "陈浩然",
+    "class_name": "机械工程学院",
+    "age": 37,
+    "role": "teacher",
+    "teacherAuthenticated": true,
+    "passwordHash": "scrypt$370ddfb296c1566f97d26b6b2e54e066$143037d55e34523019caef2dcb2d8b023e4321e084c3a59ab8f4b05e984faa52f03340b4f6d8f3949fcf9491fb0c31962a782fbec9553d46ac187f4c52fb2798",
+    "status": "active"
+  },
+  {
+    "id": 6,
+    "username": "10006",
+    "real_name": "刘雅婷",
+    "class_name": "经济管理学院",
+    "age": 30,
+    "role": "teacher",
+    "teacherAuthenticated": true,
+    "passwordHash": "scrypt$b16eb12fd9fe0dcf1d5386c6be16e531$e315f5dd30cdb1308068afc02ff30b683c4dd70d2fcb9136503276fd6d4defa5fead1428b0339c1eb692d569636c46c45356ef672faa136662961e02fd1c9ccd",
+    "status": "active"
+  },
+  {
+    "id": 7,
+    "username": "10007",
+    "real_name": "周俊杰",
+    "class_name": "数学学院",
+    "age": 34,
+    "role": "teacher",
+    "teacherAuthenticated": true,
+    "passwordHash": "scrypt$b03b1bdfbcfd53284b3f0a742e3a07db$f47ae4ae48093c83b5562d8146cd4d2269d8e3800c6e69e529deafe345a4e9cd42720a48753131af147c6273863c366e81d609f9c1ed2513ad7829bfe9e009f8",
+    "status": "active"
+  },
+  {
+    "id": 8,
+    "username": "10008",
+    "real_name": "黄晓琳",
+    "class_name": "生命科学学院",
+    "age": 29,
+    "role": "teacher",
+    "teacherAuthenticated": true,
+    "passwordHash": "scrypt$215da33df60b69d88f41d9c0e595aae1$d986a38e55951dc2996a409980dcd0be2d268907aa493c13ce28314d3deb3616a4d0939beb376614125b9bb40fc19af6dd64822f686a47b902b12ce91115a269",
+    "status": "active"
+  },
+  {
+    "id": 9,
+    "username": "10009",
+    "real_name": "孙伟",
+    "class_name": "物理学院",
+    "age": 44,
+    "role": "teacher",
+    "teacherAuthenticated": true,
+    "passwordHash": "scrypt$00efbec615a62dd0b06be967473c5bed$50ef9a9f2cba3f36689097bf34afd6af54b8ca92c32ec5a6eeabf052a1ab15c0487d3a8a723adfe7062b30675fb1d90a648ab84657c920c97a3af52c8ea6d60f",
+    "status": "active"
+  },
+  {
+    "id": 10,
+    "username": "10010",
+    "real_name": "吴佳怡",
+    "class_name": "新闻传播学院",
+    "age": 31,
+    "role": "teacher",
+    "teacherAuthenticated": true,
+    "passwordHash": "scrypt$62c87c0ccd763cf313a9e5fa82cb902c$e76fc77bd3e2a71922b8f9e172518c808b19482e3eb398c51e8553a2561f8c0e5dda61a336a50209dcc5a93368ef26ea5024fa468cff33219760b367508e9eb6",
+    "status": "active"
+  },
+  {
+    "id": 11,
+    "username": "2021001",
+    "real_name": "陈小明",
+    "class_name": "计算机2101班",
+    "role": "student",
+    "status": "active",
+    "teacherAuthenticated": false,
+    "passwordHash": "scrypt$b0702ae1cbb4ae9607a95919b3ee97aa$c6232970b573da3a7930238a7cb9dc0aa7a2bac1e0a269cf3f3e74e850ec29c8935766c296b33fdb63f182d2550ba8e0395180551991a3df577ea8f392f41126"
+  },
+  {
+    "id": 12,
+    "username": "2021002",
+    "real_name": "刘小红",
+    "class_name": "英语2102班",
+    "role": "student",
+    "status": "active",
+    "teacherAuthenticated": false,
+    "passwordHash": "scrypt$83b64a01af8a24e1ec142c92508a6aa0$e332827ded2885f654133dd8ff3d3b26b88f718f016aff6a5e87d0a3a06292291c98ee3e8c201e5ade1c7d8f4847ed3dd602771f0218c7213f766324a6ffa0e4"
+  },
+  {
+    "id": 13,
+    "username": "123",
+    "real_name": "s",
+    "class_name": "1",
+    "role": "student",
+    "passwordHash": "scrypt$e9e5d1fdacf2429849caba706fb25aab$d8af084651c9f374cb4f19dedaf10989f8fc5ad784af58258c5f0f86eac53bf5d463d3c95986bb73d7577b8397fe521450f791215a20e46fc5602dc5f86a86f1",
+    "status": "active",
+    "teacherAuthenticated": false
+  },
+  {
+    "id": 14,
+    "teacherAuthenticated": true,
+    "username": "90000",
+    "real_name": "系统管理员",
+    "class_name": "信息中心",
+    "role": "admin",
+    "status": "active",
+    "passwordHash": "scrypt$1e346c64a16f08abf2b0553daef1ff1c$41fdec53ba515664f86434a26228de2161a3160b9f1656f1f76613a5f520a812fbd106dff93e5dafdf0970a93040a838acc9d499b4cb3b81275c7cf5f00af906"
+  },
+  {
+    "id": 15,
+    "username": "2021003",
+    "real_name": "李思远",
+    "class_name": "计算机2103班",
+    "role": "student",
+    "passwordHash": "scrypt$1295c64a77e0b65be9263fb8659b4524$f9d53be527216ac51ff09e1a855ad37a076a5c9f138628628c38391906376ce9033194f73699cceaf2ee72fb565139fa5dd3eff9f1b930adfcef63f787aecfb2",
+    "status": "active",
+    "teacherAuthenticated": false
+  }
+]

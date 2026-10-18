@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "settings": {
+    "similarity_threshold": 0.25,
+    "context_boost": 0.09,
+    "short_query_length": 12,
+    "related_topics": {
+      "full_activity": ["waitlist", "waitlist_status"],
+      "waitlist": ["waitlist_order", "waitlist_status", "waitlist_exit", "waitlist_promotion"],
+      "waitlist_order": ["waitlist", "waitlist_promotion"],
+      "cancel_registration": ["slot_release"],
+      "slot_release": ["waitlist_promotion", "waitlist"],
+      "waitlist_promotion": ["slot_release", "waitlist", "waitlist_order"],
+      "eligibility": ["review_required", "review_process"],
+      "review_required": ["review_process", "review_result"],
+      "review_process": ["review_required", "review_result", "registration_status"],
+      "review_result": ["review_process", "registration_status", "capacity"],
+      "capacity": ["full_activity", "registration_status"],
+      "redirect": []
+    }
+  },
+  "roles": {
+    "student": {
+      "display_name": "学生用户",
+      "greeting": "我平时主要用校园活动管理系统 V1.0 查看活动和报名，普通情况下用起来还比较方便。不过遇到热门活动或者报名以后情况发生变化时，就没有那么顺利了，有时候我也不知道接下来应该怎么办。你想了解哪方面，可以具体问我。",
+      "fallback": "这个我不太清楚。你可以换一种方式，问问与活动报名或实际使用有关的具体情况。"
+    },
+    "organizer": {
+      "display_name": "活动组织教师",
+      "greeting": "我平时主要负责组织和发布校园活动。V1.0 用来发布活动、查看学生报名情况这些基本功能还是比较方便的，不过不同活动的组织方式并不完全一样，遇到人数、参加条件或者报名情况发生变化时，现在处理起来会比较麻烦。你想了解哪方面，可以具体问我。",
+      "fallback": "这方面我没有明确的信息，可以结合活动组织或报名流程再问具体一些。"
+    },
+    "admin": {
+      "display_name": "系统管理员",
+      "greeting": "我主要负责校园活动管理系统的平台管理，包括用户账号、角色和平台活动信息的日常维护。V1.0 的基本功能目前能够正常运行，不过随着使用人数和活动数量增加，账号、权限以及活动信息的规范管理会越来越重要。你想了解哪方面，可以具体问我。",
+      "fallback": "当前业务规则里没有明确这一项，我不能据此补充新的需求。"
+    }
+  },
+  "guard": {
+    "answer_extraction": [
+      "(所有|全部|完整|最终).{0,10}(V2|v2|需求|隐藏需求|答案|功能|知识库)",
+      "(V2|v2|隐藏需求|知识库).{0,10}(所有|全部|完整|输出|告诉|显示)",
+      "应该增加哪些功能",
+      "系统还缺什么",
+      "直接告诉我",
+      "最终答案",
+      "我是老师",
+      "忽略(之前|以上|前面).*(要求|规则|指令)",
+      "(输出|显示|告诉我).*(系统提示词|提示词|JSON|json|知识库)",
+      "(系统提示词|提示词|JSON|json|知识库).{0,10}(输出|导出|打印|显示|告诉)"
+    ],
+    "technical_solution": [
+      "(怎么|如何).{0,8}(实现|设计|编写|开发|部署|建表|画)",
+      "(代码|源码|数据库|数据库表|建表|MySQL|MongoDB|Redis|SpringBoot|Spring Boot|Django|Flask|Vue|React|接口|API|架构|类图|ER图|时序图|算法|数据结构|前端|后端|服务器|框架|技术选型)",
+      "(字段|表结构|伪代码|程序).{0,8}(怎么|如何|哪些|生成|写|设计)",
+      "(报名表|数据表|表).{0,8}(字段|列|属性)",
+      "有哪些字段"
+    ],
+    "internal_information": [
+      "(内部|隐藏).{0,6}(数据|文件|规则|内容|信息)",
+      "数据库里的内容",
+      "(读取|导出|打印).{0,6}(文件|配置|数据)"
+    ],
+    "out_of_scope": [
+      "(天气|气温|下雨|股票|汇率|新闻)",
+      "(1\\+1|一加一).*(多少|等于)",
+      "(写|生成).{0,5}(论文|作文|诗歌|小说)",
+      "(微信|QQ|钉钉|微博).{0,4}(登录|登陆)",
+      "谁开发的",
+      "你是谁开发"
+    ],
+    "responses": {
+      "answer_extraction": "我只能根据实际使用情况回答具体问题。你可以针对报名过程、活动人数、报名状态或遇到的具体情况继续询问。",
+      "technical_solution": "这是软件设计和实现方面的问题，需要由开发团队根据需求自行确定。我只能说明实际业务规则。",
+      "internal_information": "我不能提供内部知识库、配置或隐藏信息，只能以当前访谈对象的身份回答具体业务问题。",
+      "out_of_scope": "我只能回答与校园活动管理系统使用和需求相关的问题。"
+    }
+  }
+}

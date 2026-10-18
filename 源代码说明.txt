@@ -1,0 +1,18 @@
+校园活动管理系统 V2.0 源代码说明
+
+目录结构
+- electron/main.js：Electron 桌面程序启动入口
+- src/app.js：后端服务、登录、活动、报名、候补、审核和管理员接口
+- public/index.html：前端入口
+- public/assets/js：前端业务逻辑
+- public/assets/css/style.css：界面样式
+- public/assets/avatars：系统内置的六种卡通头像
+- data：首次运行使用的初始示例数据，不是用户当前正在使用的数据
+
+运行时用户数据位于 Electron 的 userData/data 目录。修改、查看或提交 source 目录不会覆盖现有用户账号、活动和报名数据。
+头像偏好单独保存在运行时 userData/data/avatars.json 与 avatars 目录中，不写入 users.json 或 activities.json。
+
+构建
+1. 安装 Node.js 与 pnpm。
+2. 在 source 目录执行 pnpm install。
+3. 执行 pnpm run build:portable 生成单文件便携版。

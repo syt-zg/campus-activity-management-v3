@@ -1,0 +1,8 @@
+node_modules/
+release-single/
+dist/
+*.log
+data/*.backup
+data/*.old
+data/*.tmp
+data/*.corrupt-*.bak
