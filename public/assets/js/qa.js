@@ -134,7 +134,7 @@ function qaAsk(question) {
 }
 
 function qaTranscript() {
-    const header = '# 模拟需求访谈记录\n# 访谈对象：' + qaEngine.roleName + '（' + qaState.role + '）\n# 来源：校园活动管理系统 V2.0 内嵌需求访谈问答模块\n';
+    const header = '# 模拟需求访谈记录\n# 访谈对象：' + qaEngine.roleName + '（' + qaState.role + '）\n# 来源：校园活动管理系统 V3.0 内嵌需求访谈问答模块\n';
     return header + '\n' + qaLog.map((message) => '【' + message.sender + '】' + message.text).join('\n') + '\n';
 }
 

@@ -31,18 +31,38 @@ const Api = {
   detail: id => Api.request(`/activity/${id}`),
   myJoin: () => Api.request('/activity/myjoin'),
   join: id => Api.request(`/activity/${id}/join`, { method: 'POST' }),
-  cancel: id => Api.request(`/activity/${id}/join`, { method: 'DELETE' }),
+  cancel: (id, payload) => Api.request(`/activity/${id}/join`, { method: 'DELETE', body: JSON.stringify(payload || {}) }),
+  confirmSeat: id => Api.request(`/activity/${id}/confirm`, { method: 'POST' }),
   myActivities: () => Api.request('/activity/my'),
   create: data => Api.request('/activity', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => Api.request(`/activity/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   remove: id => Api.request(`/activity/${id}`, { method: 'DELETE' }),
   joinList: id => Api.request(`/activity/${id}/joinlist`),
   review: (id, userId, action) => Api.request(`/activity/${id}/review`, { method: 'PUT', body: JSON.stringify({ userId, action }) }),
+  checkin: (id, userId, attended) => Api.request(`/activity/${id}/checkin`, { method: 'PUT', body: JSON.stringify({ userId, attended }) }),
+
+  /* V3.0：导出名单（需要带令牌，因此用 fetch + blob 而不是直接开链接） */
+  async downloadJoinList(id, title) {
+    let res;
+    try { res = await fetch(`${API_BASE}/activity/${id}/export`, { headers: { Authorization: `Bearer ${this.token()}` } }); }
+    catch { throw new Error('无法连接后端服务'); }
+    if (!res.ok) throw new Error('导出失败（HTTP ' + res.status + '）');
+    const blob = await res.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = '报名名单-' + String(title || id).replace(/[\\/:*?"<>|]/g, '_') + '.csv';
+    document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+  },
 
   /* ===== 平台管理（V2.0 新增） ===== */
   adminOverview: () => Api.request('/admin/overview'),
   adminUsers: params => Api.request(`/admin/users?${new URLSearchParams(params || {})}`),
   adminUserStatus: (id, status) => Api.request(`/admin/users/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
   adminActivities: params => Api.request(`/admin/activities?${new URLSearchParams(params || {})}`),
-  adminActivityStatus: (id, status) => Api.request(`/admin/activities/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) })
+  adminActivityStatus: (id, status) => Api.request(`/admin/activities/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
+
+  /* ===== V3.0 运行数据 ===== */
+  adminMetrics: (days = 7) => Api.request(`/admin/metrics?days=${days}`),
+  adminEvents: params => Api.request(`/admin/events?${new URLSearchParams(params || {})}`)
 };

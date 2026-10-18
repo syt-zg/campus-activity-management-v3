@@ -1,6 +1,6 @@
 {
   "name": "campus-activity-management-system",
-  "version": "3.1.0",
+  "version": "3.0.0",
   "description": "校园活动管理系统（Node.js 全栈 + Electron 桌面版）",
   "author": "校园活动管理系统项目组",
   "main": "electron/main.js",
@@ -31,7 +31,14 @@
       "target": [
         "portable"
       ],
-      "artifactName": "校园活动管理系统-便携版-3.1.0.${ext}"
+      "artifactName": "校园活动管理系统-便携版-3.0.0.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "artifactName": "校园活动管理系统-安装版-3.0.0.${ext}"
     }
   }
 }

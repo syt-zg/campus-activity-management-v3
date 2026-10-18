@@ -50,6 +50,11 @@ const normalizeActivity = (item = {}) => {
         platformStatus: item.platformStatus || 'active',
         requireReview: item.requireReview === true,
         eligibility: item.eligibility || '',
+        eligibilityRule: item.eligibilityRule || '',
+        cancelledCount: number(item.cancelledCount),
+        attendedCount: number(item.attendedCount),
+        needConfirmCount: number(item.needConfirmCount),
+        confirmHours: item.confirmHours || 24,
         signupTime: formatDate(item.signup_time || item.signupTime || item.create_time),
         myRegistration: item.myRegistration || null,
         summary: item.summary || null
@@ -80,6 +85,8 @@ async function render() {
         else if (currentView === 'admin-home') await renderAdminHome();
         else if (currentView === 'admin-users') await renderAdminUsers();
         else if (currentView === 'admin-activities') await renderAdminActivities();
+        else if (currentView === 'admin-metrics') await renderAdminMetrics();
+        else if (currentView === 'admin-events') await renderAdminEvents();
         else {
             currentView = currentUser.role === 'student' ? 'student-home' : currentUser.role === 'teacher' ? 'teacher-home' : 'admin-home';
             await render();
@@ -115,12 +122,12 @@ function renderLogin() {
     const remembered = Storage.getRemembered(); const role = remembered?.role || 'student';
     const actionText = role === 'student' ? '学生注册' : role === 'teacher' ? '教师认证' : '';
     const accountLabel = role === 'student' ? '学号' : role === 'teacher' ? '教师编号' : '管理员账号';
-    return '<div class="login-wrapper"><div class="login-card"><div class="login-header"><div class="login-logo">校</div><h1 class="login-title">校园活动管理系统</h1><p class="login-subtitle">Campus Activity Management System V2.0</p></div>' +
+    return '<div class="login-wrapper"><div class="login-card"><div class="login-header"><div class="login-logo">校</div><h1 class="login-title">校园活动管理系统</h1><p class="login-subtitle">Campus Activity Management System V3.0</p></div>' +
         '<div class="tab-switch" id="role-tabs"><div class="tab-item ' + (role === 'student' ? 'active' : '') + '" data-role="student">学生登录</div><div class="tab-item ' + (role === 'teacher' ? 'active' : '') + '" data-role="teacher">教师登录</div><div class="tab-item ' + (role === 'admin' ? 'active' : '') + '" data-role="admin">管理员登录</div></div>' +
         '<form id="login-form"><div class="input-group"><label class="input-label" id="account-label">' + accountLabel + '</label><input type="text" class="input-field" id="login-account" value="' + escapeHtml(remembered?.account || '') + '" placeholder="请输入账号" maxlength="20" ' + (role === 'admin' ? '' : 'inputmode="numeric"') + '></div>' +
         '<div class="input-group"><label class="input-label">登录密码</label><input type="password" class="input-field" id="login-password" value="' + escapeHtml(remembered?.password || '') + '" placeholder="请输入密码"><span class="password-toggle" id="toggle-pwd">👁</span></div>' +
         '<div class="login-options"><label class="remember-me"><input type="checkbox" id="remember-me" ' + (remembered ? 'checked' : '') + '><span>记住密码</span></label>' + (actionText ? '<span class="register-link" id="login-action-link">' + actionText + '</span>' : '<span class="login-tip">管理员账号由平台统一分配</span>') + '</div><button type="submit" class="btn btn-primary btn-block">登 录</button><button type="button" class="btn btn-secondary btn-block mt-16" id="clear-btn">清 空</button></form>' +
-        '<div class="login-footer">© 2026 校园活动管理系统 V2.0 | 仅供演示使用</div></div></div>';
+        '<div class="login-footer">© 2026 校园活动管理系统 V3.0 | 仅供演示使用</div></div></div>';
 }
 function bindLoginEvents() {
     let role = Storage.getRemembered()?.role || 'student';
@@ -193,7 +200,7 @@ function showTeacherApplicationDialog(username, applicationPassword) {
 const MENUS = {
     student: [['student-home', '🏠', '活动首页'], ['student-my-activities', '📋', '我的活动'], ['qa', '💬', '需求访谈问答'], ['student-profile', '👤', '个人中心']],
     teacher: [['teacher-home', '📊', '活动管理'], ['qa', '💬', '需求访谈问答'], ['teacher-profile', '👤', '个人中心']],
-    admin: [['admin-home', '🧭', '平台概览'], ['admin-users', '👥', '用户管理'], ['admin-activities', '🗂', '活动监管'], ['qa', '💬', '需求访谈问答'], ['admin-profile', '👤', '个人中心']]
+    admin: [['admin-home', '🧭', '平台概览'], ['admin-users', '👥', '用户管理'], ['admin-activities', '🗂', '活动监管'], ['admin-metrics', '📈', '运行统计'], ['admin-events', '🧾', '运行日志'], ['qa', '💬', '需求访谈问答'], ['admin-profile', '👤', '个人中心']]
 };
 const ROLE_LABEL = { student: '学生端', teacher: '教师端', admin: '管理端' };
 const ROLE_TAG_CLASS = { student: 'status-joined', teacher: 'status-pending', admin: 'status-admin' };
@@ -202,7 +209,7 @@ function layoutShell(role, activeMenu, contentHtml) {
     const menus = MENUS[role] || MENUS.student;
     const name = currentUser?.real_name || currentUser?.name || '';
     return '<div class="app-layout"><nav class="top-nav"><div class="nav-left"><div class="nav-logo">校</div><span class="nav-title">校园活动管理系统</span><span class="status-tag ' + ROLE_TAG_CLASS[role] + '" style="margin-left:8px">' + ROLE_LABEL[role] + '</span></div><div class="nav-right"><button class="btn btn-ghost btn-sm" id="refresh-btn">🔄 刷新</button><div class="user-info" id="user-info">' + renderAvatar(currentUser, 'user-avatar') + '<span class="user-name">' + escapeHtml(name) + '</span></div><button class="btn btn-secondary btn-sm" id="logout-btn">退出</button></div></nav>' +
-        '<div class="body-layout"><aside class="sidebar"><ul class="sidebar-menu">' + menus.map(([key, icon, label]) => '<li class="sidebar-item ' + (activeMenu === key ? 'active' : '') + '" data-view="' + key + '"><span class="sidebar-icon">' + icon + '</span><span>' + label + '</span></li>').join('') + '</ul></aside><main class="main-content" id="main-content">' + contentHtml + '</main></div><footer class="footer">© 2026 校园活动管理系统 V2.0 | 校园官方活动管理平台</footer></div>';
+        '<div class="body-layout"><aside class="sidebar"><ul class="sidebar-menu">' + menus.map(([key, icon, label]) => '<li class="sidebar-item ' + (activeMenu === key ? 'active' : '') + '" data-view="' + key + '"><span class="sidebar-icon">' + icon + '</span><span>' + label + '</span></li>').join('') + '</ul></aside><main class="main-content" id="main-content">' + contentHtml + '</main></div><footer class="footer">© 2026 校园活动管理系统 V3.0 | 校园官方活动管理平台</footer></div>';
 }
 function bindLayoutEvents() {
     document.querySelectorAll('.sidebar-item').forEach(item => item.addEventListener('click', () => navigate(item.dataset.view)));
@@ -220,6 +227,7 @@ function bindLayoutEvents() {
 function signupButton(activity) {
     const reg = activity.myRegistration;
     if (reg) {
+        if (reg.needConfirm) return { label: '待确认名额', disabled: true, kind: 'warning' };
         const label = reg.status === '候补中' ? '候补中·第 ' + reg.position + ' 位'
             : reg.status === '正式参加' ? '已报名（正式参加）'
                 : reg.status === '待审核' ? '等待教师审核' : '未通过审核';
@@ -280,8 +288,11 @@ async function showActivityDetail(activityId) {
             ['活动简介', activity.description],
             ['活动须知', activity.notice || '暂无']
         ];
-        if (activity.eligibility) rows.splice(7, 0, ['参加资格', activity.eligibility]);
-        if (isStudent && reg) rows.push(['我的报名状态', reg.status + (reg.status === '候补中' ? '（第 ' + reg.position + ' 位）' : '')]);
+        const ruleText = activity.eligibilityRule
+            ? '仅限「' + activity.eligibilityRule + '」（按所属班级/年级匹配）' + (activity.eligibility ? '；' + activity.eligibility : '')
+            : activity.eligibility;
+        if (ruleText) rows.splice(7, 0, ['参加资格', ruleText]);
+        if (isStudent && reg) rows.push(['我的报名状态', reg.status + (reg.status === '候补中' ? '（第 ' + reg.position + ' 位）' : '') + (reg.needConfirm ? '，请于 ' + formatDate(reg.confirmDeadline) + ' 前确认名额' : '') + (reg.attended === true ? '，已出席' : '')]);
         const modal = document.createElement('div'); modal.className = 'modal-mask';
         const footer = isStudent && !reg && activity.status === '未开始'
             ? '<button class="btn btn-primary modal-signup">' + (activity.requireReview ? '提交报名申请' : activity.remaining > 0 ? '立即报名' : '加入候补') + '</button>'
@@ -324,25 +335,38 @@ async function renderMyActivities() {
     const cards = activities.length ? activities.map(activity => {
         const reg = activity.myRegistration || {};
         const canCancel = reg.status !== '未通过' && activity.status !== '已结束';
+        const canConfirm = reg.needConfirm === true;
         const actionLabel = reg.status === '候补中' ? '退出候补' : '取消报名';
-        return '<div class="activity-card"><div class="card-header"><div class="card-title"><span>' + escapeHtml(activity.title) + '</span>' + statusTag(activity.status) + '</div><div class="card-tags">' + typeTag(activity.type) + regTag(reg.status, reg.position) + '</div></div><div class="card-body"><div class="card-info"><span class="card-info-icon">🕒</span><span>' + escapeHtml(activity.startTime) + '</span></div><div class="card-info"><span class="card-info-icon">📍</span><span>' + escapeHtml(activity.location) + '</span></div><div class="card-info"><span class="card-info-icon">👥</span><span>正式 ' + activity.approvedCount + ' / ' + activity.maxParticipants + ' 人' + (activity.waitlistCount ? '，候补 ' + activity.waitlistCount + ' 人' : '') + '</span></div><div class="card-info"><span class="card-info-icon">📝</span><span>申请时间：' + escapeHtml(formatDate(reg.applyTime) || activity.signupTime) + '</span></div>' + (reg.status === '候补中' ? '<p class="card-desc">您当前排在第 ' + reg.position + ' 位，有正式名额释放时会按顺序自动递补。</p>' : reg.status === '待审核' ? '<p class="card-desc">报名申请已提交，等待活动组织教师审核。</p>' : reg.status === '未通过' ? '<p class="card-desc">很抱歉，您的报名未通过该活动的参加条件。</p>' : '<p class="card-desc">您已确定为正式参加，如需取消请在活动开始前处理。</p>') + '</div><div class="card-footer"><span class="publisher">发布：' + escapeHtml(activity.publisher) + '</span><div class="card-actions"><button class="btn btn-secondary btn-sm btn-detail" data-id="' + activity.id + '">查看详情</button>' + (canCancel ? '<button class="btn ' + (reg.status === '候补中' ? 'btn-secondary' : 'btn-danger') + ' btn-sm btn-cancel" data-id="' + activity.id + '">' + actionLabel + '</button>' : '') + '</div></div></div>';
+        return '<div class="activity-card"><div class="card-header"><div class="card-title"><span>' + escapeHtml(activity.title) + '</span>' + statusTag(activity.status) + '</div><div class="card-tags">' + typeTag(activity.type) + regTag(reg.status, reg.position) + '</div></div><div class="card-body"><div class="card-info"><span class="card-info-icon">🕒</span><span>' + escapeHtml(activity.startTime) + '</span></div><div class="card-info"><span class="card-info-icon">📍</span><span>' + escapeHtml(activity.location) + '</span></div><div class="card-info"><span class="card-info-icon">👥</span><span>正式 ' + activity.approvedCount + ' / ' + activity.maxParticipants + ' 人' + (activity.waitlistCount ? '，候补 ' + activity.waitlistCount + ' 人' : '') + '</span></div><div class="card-info"><span class="card-info-icon">📝</span><span>申请时间：' + escapeHtml(formatDate(reg.applyTime) || activity.signupTime) + '</span></div>' + (canConfirm ? '<p class="card-desc" style="color:var(--danger);font-weight:500">您已获得递补名额，请在 ' + escapeHtml(formatDate(reg.confirmDeadline)) + ' 前点击“确认名额”，逾期名额将自动释放给下一位候补同学。</p>' : reg.status === '候补中' ? '<p class="card-desc">您当前排在第 ' + reg.position + ' 位，有正式名额释放时会按顺序自动递补，递补后需在 24 小时内确认。</p>' : reg.status === '待审核' ? '<p class="card-desc">报名申请已提交，等待活动组织教师审核。</p>' : reg.status === '未通过' ? '<p class="card-desc">很抱歉，您的报名未通过该活动的参加条件。</p>' : '<p class="card-desc">您已确定为正式参加，如需取消请在活动开始前处理。</p>') + '</div><div class="card-footer"><span class="publisher">发布：' + escapeHtml(activity.publisher) + '</span><div class="card-actions"><button class="btn btn-secondary btn-sm btn-detail" data-id="' + activity.id + '">查看详情</button>' + (canConfirm ? '<button class="btn btn-primary btn-sm btn-confirm-seat" data-id="' + activity.id + '">确认名额</button>' : '') + (canCancel ? '<button class="btn ' + (reg.status === '候补中' ? 'btn-secondary' : 'btn-danger') + ' btn-sm btn-cancel" data-id="' + activity.id + '">' + actionLabel + '</button>' : '') + '</div></div></div>';
     }).join('') : '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📭</div><div>您还没有报名任何活动</div></div>';
     appRoot().innerHTML = layoutShell('student', 'student-my-activities', '<div class="page-header"><h2 class="page-title">我的活动</h2><p class="page-desc">共 ' + activities.length + ' 条报名记录，可在此查看报名状态与候补位次</p></div><div class="activity-grid">' + cards + '</div>');
     bindLayoutEvents();
     document.querySelectorAll('.btn-detail').forEach(button => button.addEventListener('click', () => showActivityDetail(button.dataset.id)));
     document.querySelectorAll('.btn-cancel').forEach(button => button.addEventListener('click', () => showCancelConfirm(button.dataset.id)));
+    document.querySelectorAll('.btn-confirm-seat').forEach(button => button.addEventListener('click', async () => {
+        const result = await Student.confirmSeat(button.dataset.id);
+        if (!result.success) return showToast(result.message, 'error');
+        showToast('名额已确认，请按时参加活动', 'success');
+        render();
+    }));
 }
+
+const CANCEL_REASONS = ['时间冲突', '临时有事', '地点不便', '兴趣变化', '已报其他活动', '身体原因', '其他'];
 
 async function showCancelConfirm(activityId) {
     let activity = null;
     try { activity = normalizeActivity(await Api.detail(activityId)); } catch { /* 忽略，使用默认文案 */ }
     const isWaitlist = activity?.myRegistration?.status === '候补中';
+    const options = CANCEL_REASONS.map(reason => '<option value="' + reason + '">' + reason + '</option>').join('');
     const modal = document.createElement('div'); modal.className = 'modal-mask';
-    modal.innerHTML = '<div class="modal"><div class="modal-header"><h3 class="modal-title">' + (isWaitlist ? '退出候补' : '取消报名') + '</h3><span class="modal-close">✕</span></div><div class="modal-body"><p>' + (isWaitlist ? '确定要退出该活动的候补队列吗？退出后您后面的候补者位次会依次前移。' : '确定要取消该活动的报名吗？取消后名额会释放，并自动递补给候补队列中排在最前面的同学。') + '</p></div><div class="modal-footer"><button class="btn btn-secondary modal-cancel">再想想</button><button class="btn btn-danger modal-confirm">' + (isWaitlist ? '确认退出候补' : '确认取消报名') + '</button></div></div>';
+    modal.innerHTML = '<div class="modal"><div class="modal-header"><h3 class="modal-title">' + (isWaitlist ? '退出候补' : '取消报名') + '</h3><span class="modal-close">✕</span></div><div class="modal-body"><p>' + (isWaitlist ? '确定要退出该活动的候补队列吗？退出后您后面的候补者位次会依次前移。' : '确定要取消该活动的报名吗？取消后名额会释放，并自动递补给候补队列中排在最前面的同学。') + '</p><div class="input-group"><label class="input-label">取消原因（用于活动改进，必填）</label><select class="input-field" id="cancel-reason">' + options + '</select></div><div class="input-group"><label class="input-label">补充说明（选填）</label><input class="input-field" id="cancel-note" maxlength="100" placeholder="例如：与实验课冲突"></div></div><div class="modal-footer"><button class="btn btn-secondary modal-cancel">再想想</button><button class="btn btn-danger modal-confirm">' + (isWaitlist ? '确认退出候补' : '确认取消报名') + '</button></div></div>';
     document.body.appendChild(modal); const close = () => modal.remove();
     modal.querySelector('.modal-close').addEventListener('click', close); modal.querySelector('.modal-cancel').addEventListener('click', close);
+    modal.addEventListener('click', event => { if (event.target === modal) close(); });
     modal.querySelector('.modal-confirm').addEventListener('click', async () => {
-        const result = await Student.cancelSignup(activityId); close();
+        const reason = modal.querySelector('#cancel-reason').value;
+        const note = modal.querySelector('#cancel-note').value.trim();
+        const result = await Student.cancelSignup(activityId, { reason, note }); close();
         if (!result.success) return showToast(result.message, 'error');
         const names = result.data?.promotedNames || [];
         showToast(names.length ? '操作成功，已自动递补：' + names.join('、') : (isWaitlist ? '已退出候补队列' : '已取消报名'), 'success');
@@ -444,14 +468,14 @@ async function renderTeacherHome() {
     document.querySelectorAll('.btn-delete').forEach(button => button.addEventListener('click', () => confirmDelete(button.dataset.id)));
     document.querySelectorAll('.btn-signups').forEach(button => button.addEventListener('click', () => showSignupList(button.dataset.id)));
 }
-async function confirmDelete(activityId) { if (!confirm('确定要删除该活动吗？删除后不可恢复，相关报名记录也将被清除。')) return; const result = await Teacher.deleteActivity(activityId); if (result.success) { showToast('活动已删除', 'success'); render(); } else showToast(result.message, 'error'); }
+async function confirmDelete(activityId) { if (!confirm('确定要删除该活动吗？活动将从列表移除，但报名、候补与取消记录会保留下来（可追溯、可统计）。')) return; const result = await Teacher.deleteActivity(activityId); if (result.success) { showToast('活动已删除', 'success'); render(); } else showToast(result.message, 'error'); }
 
 async function showActivityForm(activityId = null) {
     const isEdit = Boolean(activityId);
     let activity = { title: '', type: '', startTime: '', endTime: '', location: '', maxParticipants: 50, description: '', notice: '', requireReview: false, eligibility: '' };
     if (isEdit) activity = normalizeActivity(await Api.detail(activityId));
     const modal = document.createElement('div'); modal.className = 'modal-mask';
-    modal.innerHTML = '<div class="modal modal-lg"><div class="modal-header"><h3 class="modal-title">' + (isEdit ? '编辑活动' : '发布新活动') + '</h3><span class="modal-close">✕</span></div><div class="modal-body"><div class="input-group"><label class="input-label">活动标题 *</label><input class="input-field" id="f-title" value="' + escapeHtml(activity.title) + '" maxlength="50"></div><div class="flex gap-8"><div class="input-group" style="flex:1"><label class="input-label">活动类型 *</label><select class="input-field" id="f-type"><option value="">请选择</option>' + ACTIVITY_TYPES.map(type => '<option value="' + type + '" ' + (type === activity.type ? 'selected' : '') + '>' + type + '</option>').join('') + '</select></div><div class="input-group" style="flex:1"><label class="input-label">招募人数（正式名额上限）*</label><input type="number" class="input-field" id="f-max" value="' + activity.maxParticipants + '" min="1"></div></div><div class="flex gap-8"><div class="input-group" style="flex:1"><label class="input-label">开始时间 *</label><input type="datetime-local" class="input-field" id="f-start" value="' + inputDate(activity.startTime) + '"></div><div class="input-group" style="flex:1"><label class="input-label">结束时间 *</label><input type="datetime-local" class="input-field" id="f-end" value="' + inputDate(activity.endTime) + '"></div></div><div class="input-group"><label class="input-label">活动地点 *</label><input class="input-field" id="f-location" value="' + escapeHtml(activity.location) + '" maxlength="50"></div><div class="input-group"><label class="input-label">活动简介 *</label><textarea class="input-field" id="f-desc" rows="3" maxlength="300">' + escapeHtml(activity.description) + '</textarea></div><div class="input-group"><label class="input-label">活动须知</label><textarea class="input-field" id="f-notice" rows="2" maxlength="200">' + escapeHtml(activity.notice) + '</textarea></div><div class="input-group"><label class="checkbox"><input type="checkbox" id="f-review" ' + (activity.requireReview ? 'checked' : '') + '><span>该活动需要审核报名资格</span></label><div class="form-hint">勾选后，学生报名先进入“待审核”，由您确认通过或拒绝；通过后仍按剩余名额决定正式参加或候补。</div></div><div class="input-group"><label class="input-label">参加资格说明（需要审核时建议填写）</label><textarea class="input-field" id="f-eligibility" rows="2" maxlength="200" placeholder="例如：仅限计算机专业大二以上学生">' + escapeHtml(activity.eligibility) + '</textarea></div></div><div class="modal-footer"><button class="btn btn-secondary modal-cancel">取消</button><button class="btn btn-primary modal-confirm">' + (isEdit ? '保存修改' : '确认发布') + '</button></div></div>';
+    modal.innerHTML = '<div class="modal modal-lg"><div class="modal-header"><h3 class="modal-title">' + (isEdit ? '编辑活动' : '发布新活动') + '</h3><span class="modal-close">✕</span></div><div class="modal-body"><div class="input-group"><label class="input-label">活动标题 *</label><input class="input-field" id="f-title" value="' + escapeHtml(activity.title) + '" maxlength="50"></div><div class="flex gap-8"><div class="input-group" style="flex:1"><label class="input-label">活动类型 *</label><select class="input-field" id="f-type"><option value="">请选择</option>' + ACTIVITY_TYPES.map(type => '<option value="' + type + '" ' + (type === activity.type ? 'selected' : '') + '>' + type + '</option>').join('') + '</select></div><div class="input-group" style="flex:1"><label class="input-label">招募人数（正式名额上限）*</label><input type="number" class="input-field" id="f-max" value="' + activity.maxParticipants + '" min="1"></div></div><div class="flex gap-8"><div class="input-group" style="flex:1"><label class="input-label">开始时间 *</label><input type="datetime-local" class="input-field" id="f-start" value="' + inputDate(activity.startTime) + '"></div><div class="input-group" style="flex:1"><label class="input-label">结束时间 *</label><input type="datetime-local" class="input-field" id="f-end" value="' + inputDate(activity.endTime) + '"></div></div><div class="input-group"><label class="input-label">活动地点 *</label><input class="input-field" id="f-location" value="' + escapeHtml(activity.location) + '" maxlength="50"></div><div class="input-group"><label class="input-label">活动简介 *</label><textarea class="input-field" id="f-desc" rows="3" maxlength="300">' + escapeHtml(activity.description) + '</textarea></div><div class="input-group"><label class="input-label">活动须知</label><textarea class="input-field" id="f-notice" rows="2" maxlength="200">' + escapeHtml(activity.notice) + '</textarea></div><div class="input-group"><label class="checkbox"><input type="checkbox" id="f-review" ' + (activity.requireReview ? 'checked' : '') + '><span>该活动需要审核报名资格</span></label><div class="form-hint">勾选后，学生报名先进入“待审核”，由您确认通过或拒绝；通过后仍按剩余名额决定正式参加或候补。</div></div><div class="input-group"><label class="input-label">参加资格说明（需要审核时建议填写）</label><textarea class="input-field" id="f-eligibility" rows="2" maxlength="200" placeholder="例如：仅限计算机专业大二以上学生">' + escapeHtml(activity.eligibility) + '</textarea></div><div class="input-group"><label class="input-label">资格限定关键词（选填，留空表示不限）</label><input class="input-field" id="f-eligibility-rule" value="' + escapeHtml(activity.eligibilityRule || '') + '" maxlength="30" placeholder="按学生所属班级匹配，例如：计算机 或 2101"><div class="form-hint">填写后系统会在报名时校验：学生所属班级不包含该关键词则无法报名。这是可执行的规则，与上面的文字说明不同。</div></div></div><div class="modal-footer"><button class="btn btn-secondary modal-cancel">取消</button><button class="btn btn-primary modal-confirm">' + (isEdit ? '保存修改' : '确认发布') + '</button></div></div>';
     document.body.appendChild(modal); const close = () => modal.remove();
     modal.querySelector('.modal-close').addEventListener('click', close); modal.querySelector('.modal-cancel').addEventListener('click', close);
     modal.addEventListener('click', event => { if (event.target === modal) close(); });
@@ -461,7 +485,8 @@ async function showActivityForm(activityId = null) {
             startTime: document.getElementById('f-start').value.replace('T', ' '), endTime: document.getElementById('f-end').value.replace('T', ' '),
             location: document.getElementById('f-location').value.trim(), maxParticipants: Number(document.getElementById('f-max').value),
             description: document.getElementById('f-desc').value.trim(), notice: document.getElementById('f-notice').value.trim(),
-            requireReview: document.getElementById('f-review').checked, eligibility: document.getElementById('f-eligibility').value.trim()
+            requireReview: document.getElementById('f-review').checked, eligibility: document.getElementById('f-eligibility').value.trim(),
+            eligibilityRule: document.getElementById('f-eligibility-rule').value.trim()
         };
         if (!data.title || !data.type || !data.startTime || !data.endTime || !data.location || !data.description || data.maxParticipants <= 0) return showToast('请完整填写必填项', 'error');
         if (data.startTime >= data.endTime) return showToast('结束时间必须晚于开始时间', 'error');
@@ -478,16 +503,28 @@ async function showSignupList(activityId) {
         const item = normalizeActivity(data.activity);
         const summary = data.summary;
         const registrations = data.registrations;
+        const cancellations = data.cancellations || [];
         const group = (status) => registrations.filter(reg => reg.status === status);
         const renderRow = (reg, index) => {
             const actions = reg.status === '待审核'
                 ? '<div class="table-actions"><button class="btn btn-primary btn-sm btn-approve" data-user="' + reg.userId + '">通过</button><button class="btn btn-danger btn-sm btn-reject" data-user="' + reg.userId + '">拒绝</button></div>'
+                : reg.status === '正式参加'
+                    ? '<div class="table-actions"><button class="btn ' + (reg.attended === true ? 'btn-secondary' : 'btn-primary') + ' btn-sm btn-checkin" data-user="' + reg.userId + '" data-attended="' + (reg.attended === true ? 'false' : 'true') + '">' + (reg.attended === true ? '撤销出席' : '标记出席') + '</button></div>'
+                    : '';
+            const confirmCell = reg.needConfirm
+                ? '<div class="cell-sub" style="color:var(--danger)">待确认 · 截止 ' + escapeHtml(formatDate(reg.confirmDeadline)) + '</div>'
                 : '';
-            return '<tr><td>' + (index + 1) + '</td><td>' + escapeHtml(reg.real_name) + '</td><td>' + escapeHtml(reg.username) + '</td><td>' + escapeHtml(reg.class_name || '—') + '</td><td>' + regTag(reg.status, reg.position) + '</td><td class="cell-sub">' + escapeHtml(formatDate(reg.applyTime) || '—') + '</td><td>' + actions + '</td></tr>';
+            const attendCell = reg.status === '正式参加'
+                ? (reg.attended === true ? '<span class="status-tag status-joined">已出席</span>' : reg.attended === false ? '<span class="status-tag status-rejected">未出席</span>' : '—')
+                : '—';
+            return '<tr><td>' + (index + 1) + '</td><td>' + escapeHtml(reg.real_name) + '</td><td>' + escapeHtml(reg.username) + '</td><td>' + escapeHtml(reg.class_name || '—') + '</td><td>' + regTag(reg.status, reg.position) + confirmCell + '</td><td class="cell-sub">' + escapeHtml(formatDate(reg.applyTime) || '—') + '</td><td>' + attendCell + '</td><td>' + actions + '</td></tr>';
         };
-        const section = (title, list, tip) => '<div class="list-section"><h4 class="list-section-title">' + title + '<span class="list-count">' + list.length + ' 人</span></h4>' + (tip ? '<p class="form-hint">' + tip + '</p>' : '') + (list.length ? '<div class="activity-table"><table><thead><tr><th>#</th><th>姓名</th><th>学号</th><th>班级</th><th>状态</th><th>申请时间</th><th>操作</th></tr></thead><tbody>' + list.map(renderRow).join('') + '</tbody></table></div>' : '<div class="empty-state" style="padding:24px"><div>暂无记录</div></div>') + '</div>';
+        const section = (title, list, tip) => '<div class="list-section"><h4 class="list-section-title">' + title + '<span class="list-count">' + list.length + ' 人</span></h4>' + (tip ? '<p class="form-hint">' + tip + '</p>' : '') + (list.length ? '<div class="activity-table"><table><thead><tr><th>#</th><th>姓名</th><th>学号</th><th>班级</th><th>状态</th><th>申请时间</th><th>出席</th><th>操作</th></tr></thead><tbody>' + list.map(renderRow).join('') + '</tbody></table></div>' : '<div class="empty-state" style="padding:24px"><div>暂无记录</div></div>') + '</div>';
+        const cancelSection = cancellations.length
+            ? '<div class="list-section"><h4 class="list-section-title">已取消 / 已释放<span class="list-count">' + cancellations.length + ' 条</span></h4><p class="form-hint">取消原因与自动释放记录会保留，可用于分析"为什么退"和"名额是否被浪费"。</p><div class="activity-table"><table><thead><tr><th>#</th><th>姓名</th><th>时间</th><th>原因</th><th>原状态</th></tr></thead><tbody>' + cancellations.map((record, index) => '<tr><td>' + (index + 1) + '</td><td>' + escapeHtml(record.real_name || '—') + '</td><td class="cell-sub">' + escapeHtml(formatDate(record.time)) + '</td><td>' + escapeHtml(record.reason || '未填写') + '</td><td>' + escapeHtml(record.previousStatus || '—') + '</td></tr>').join('') + '</tbody></table></div></div>'
+            : '';
         const modal = document.createElement('div'); modal.className = 'modal-mask';
-        modal.innerHTML = '<div class="modal modal-xl"><div class="modal-header"><h3 class="modal-title">报名名单 - ' + escapeHtml(item.title) + '</h3><span class="modal-close">✕</span></div><div class="modal-body"><div class="summary-bar"><span>正式参加 <strong>' + summary.approvedCount + '</strong> / ' + summary.maxParticipants + '</span><span>剩余名额 <strong>' + summary.remaining + '</strong></span><span>候补 <strong>' + summary.waitlistCount + '</strong></span><span>待审核 <strong>' + summary.pendingCount + '</strong></span><span>未通过 <strong>' + summary.rejectedCount + '</strong></span></div>' + section('待审核申请', group('待审核'), '通过后将按当前剩余名额自动确定为“正式参加”或“候补中”。') + section('正式参加名单', group('正式参加')) + section('候补队列（按进入候补时间排序）', group('候补中')) + section('未通过', group('未通过')) + '</div><div class="modal-footer"><button class="btn btn-secondary modal-cancel">关闭</button></div></div>';
+        modal.innerHTML = '<div class="modal modal-xl"><div class="modal-header"><h3 class="modal-title">报名名单 - ' + escapeHtml(item.title) + '</h3><span class="modal-close">✕</span></div><div class="modal-body"><div class="summary-bar"><span>正式参加 <strong>' + summary.approvedCount + '</strong> / ' + summary.maxParticipants + '</span><span>剩余名额 <strong>' + summary.remaining + '</strong></span><span>候补 <strong>' + summary.waitlistCount + '</strong></span><span>待审核 <strong>' + summary.pendingCount + '</strong></span><span>待确认 <strong>' + (summary.needConfirmCount || 0) + '</strong></span><span>已出席 <strong>' + (summary.attendedCount || 0) + '</strong></span><span>已取消 <strong>' + (summary.cancelledCount || 0) + '</strong></span></div>' + (summary.eligibilityRule ? '<p class="form-hint">资格限定：仅限「' + escapeHtml(summary.eligibilityRule) + '」，不匹配的学生报名会被系统拒绝并留痕。</p>' : '') + section('待审核申请', group('待审核'), '通过后将按当前剩余名额自动确定为“正式参加”或“候补中”。') + section('正式参加名单', group('正式参加'), '活动开始后可为到场学生标记出席，用于统计真实出席率（爽约率 = 1 − 出席率）。') + section('候补队列（按进入候补时间排序）', group('候补中'), '名额释放后按顺序自动递补，被递补者需在 ' + (data.confirmHours || 24) + ' 小时内确认，逾期自动释放给下一位。') + section('未通过', group('未通过')) + cancelSection + '</div><div class="modal-footer"><button class="btn btn-secondary btn-export">导出 CSV</button><button class="btn btn-secondary modal-cancel">关闭</button></div></div>';
         document.body.appendChild(modal); const close = () => modal.remove();
         modal.querySelector('.modal-close').addEventListener('click', close); modal.querySelector('.modal-cancel').addEventListener('click', close);
         modal.addEventListener('click', event => { if (event.target === modal) close(); });
@@ -500,6 +537,18 @@ async function showSignupList(activityId) {
         };
         modal.querySelectorAll('.btn-approve').forEach(button => button.addEventListener('click', () => doReview(Number(button.dataset.user), 'approve')));
         modal.querySelectorAll('.btn-reject').forEach(button => button.addEventListener('click', () => doReview(Number(button.dataset.user), 'reject')));
+        modal.querySelectorAll('.btn-checkin').forEach(button => button.addEventListener('click', async () => {
+            const attended = button.dataset.attended === 'true';
+            const result = await Teacher.setCheckin(activityId, Number(button.dataset.user), attended);
+            if (!result.success) return showToast(result.message, 'error');
+            showToast(attended ? '已记录出席' : '已撤销出席', 'success');
+            close(); await render(); showSignupList(activityId);
+        }));
+        modal.querySelector('.btn-export').addEventListener('click', async () => {
+            const result = await Teacher.exportSignupList(activityId, item.title);
+            if (!result.success) return showToast(result.message, 'error');
+            showToast('名单已导出为 CSV', 'success');
+        });
     } catch (error) { showToast(error.message, 'error'); }
 }
 
@@ -565,6 +614,108 @@ async function changeUserStatus(userId, status) {
     const result = await Admin.setUserStatus(userId, status);
     if (!result.success) return showToast(result.message, 'error');
     showToast(status === 'disabled' ? '账号已停用' : '账号已启用', 'success'); render();
+}
+
+/* ============================== 管理员：运行统计（V3.0 新增） ============================== */
+
+function metricCard(label, value, suffix, color, hint) {
+    return '<div class="stat-card" style="border-left-color:' + (color || 'var(--primary)') + '"><div class="stat-value" style="color:' + (color || 'var(--primary)') + '">' + value + (suffix || '') + '</div><div class="stat-label">' + label + '</div>' + (hint ? '<div class="cell-sub">' + hint + '</div>' : '') + '</div>';
+}
+
+async function renderAdminMetrics() {
+    if (!renderAdminMetrics.days) renderAdminMetrics.days = 7;
+    const data = await Admin.getMetrics(renderAdminMetrics.days);
+    const f = data.funnel, r = data.rates;
+    const trendRows = data.trend.map(row => '<tr><td>' + escapeHtml(row.date) + '</td><td>' + row.joins + '</td><td>' + row.promotes + '</td><td>' + row.cancels + '</td><td>' + row.checkins + '</td><td style="min-width:120px"><div style="height:8px;background:#eef2f7;border-radius:4px;overflow:hidden"><div style="height:100%;width:' + Math.min(100, row.joins * 10) + '%;background:#2563eb"></div></div></td></tr>').join('');
+    const reasonRows = data.cancelReasons.length
+        ? data.cancelReasons.map(row => '<tr><td>' + escapeHtml(row.reason) + '</td><td>' + row.count + '</td><td>' + (data.cancelReasons[0].count ? Math.round(row.count / data.cancelReasons[0].count * 100) : 0) + '%</td></tr>').join('')
+        : '<tr><td colspan="3" class="empty-state" style="padding:16px">暂未记录取消原因</td></tr>';
+    const typeRows = data.byType.length
+        ? data.byType.map(row => '<tr><td>' + escapeHtml(row.type) + '</td><td>' + row.activities + '</td><td>' + row.approved + ' / ' + row.capacity + '</td><td>' + row.seatUsage + '%</td><td>' + row.waitlisted + '</td><td>' + row.cancelled + '</td></tr>').join('')
+        : '<tr><td colspan="6" class="empty-state" style="padding:16px">暂无活动数据</td></tr>';
+    const eventRows = data.recentEvents.length
+        ? data.recentEvents.map(event => '<tr><td class="cell-sub">' + escapeHtml(event.time) + '</td><td>' + eventTypeTag(event.type) + '</td><td>' + escapeHtml(event.actorName || '—') + '</td><td>' + escapeHtml(event.activityTitle || '—') + '</td><td class="cell-sub">' + escapeHtml(event.detail || '') + '</td></tr>').join('')
+        : '<tr><td colspan="5" class="empty-state" style="padding:16px">暂无事件记录</td></tr>';
+
+    const content = '<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-end"><div><h2 class="page-title">运行统计</h2><p class="page-desc">把系统运行过程变成可读指标：名额利用、候补转化、取消原因、真实出席与审核效率。统计窗口：最近 ' + data.days + ' 天</p></div><div class="filter-bar" style="margin:0"><select class="input-field filter-select" id="metrics-days"><option value="7"' + (data.days === 7 ? ' selected' : '') + '>近 7 天</option><option value="30"' + (data.days === 30 ? ' selected' : '') + '>近 30 天</option><option value="90"' + (data.days === 90 ? ' selected' : '') + '>近 90 天</option></select></div></div>' +
+        '<div class="stats-grid">' +
+        metricCard('名额利用率', r.seatUsage, '%', '#2563eb', '正式参加 / 名额上限') +
+        metricCard('取消率', r.cancelRate, '%', '#dc2626', '取消笔数 / 曾报名笔数') +
+        metricCard('候补转化率', r.waitlistPromoteRate, '%', '#7c3aed', '递补人数 / 进入候补人数') +
+        metricCard('真实出席率', r.attendanceRate === null ? '—' : r.attendanceRate, r.attendanceRate === null ? '' : '%', '#16a34a', r.attendanceRate === null ? '尚无签到记录' : '已出席 / 已记录出席') +
+        metricCard('审核等待中位数', r.approveWaitMedian === null ? '—' : r.approveWaitMedian, r.approveWaitMedian === null ? '' : ' 分钟', '#d97706', '样本 ' + r.reviewedCount + ' 条') +
+        metricCard('审核等待 P90', r.approveWaitP90 === null ? '—' : r.approveWaitP90, r.approveWaitP90 === null ? '' : ' 分钟', '#d97706', '长尾明显说明审核堆积') +
+        '</div>' +
+        '<div class="page-header" style="margin-top:24px"><h2 class="page-title">报名漏斗</h2><p class="page-desc">从报名到出席的各环节转化，缺口就是改进点</p></div>' +
+        '<div class="activity-table"><table><thead><tr><th>环节</th><th>数量</th><th>说明</th></tr></thead><tbody>' +
+        '<tr><td>直接报名成功</td><td><strong>' + f.joinApproved + '</strong></td><td class="cell-sub">无需审核且有名额</td></tr>' +
+        '<tr><td>提交待审核</td><td><strong>' + f.joinPending + '</strong></td><td class="cell-sub">需审核活动</td></tr>' +
+        '<tr><td>进入候补</td><td><strong>' + f.joinWaitlist + '</strong></td><td class="cell-sub">名额已满</td></tr>' +
+        '<tr><td>资格被拦截</td><td><strong>' + f.joinBlocked + '</strong></td><td class="cell-sub">不符合班级/年级限定</td></tr>' +
+        '<tr><td>递补成功</td><td><strong>' + f.promoted + '</strong></td><td class="cell-sub">候补转为正式参加</td></tr>' +
+        '<tr><td>递补后确认</td><td><strong>' + f.confirmed + '</strong></td><td class="cell-sub">学生主动确认名额</td></tr>' +
+        '<tr><td>确认超时释放</td><td><strong>' + f.expired + '</strong></td><td class="cell-sub">名额被系统回收并顺延</td></tr>' +
+        '<tr><td>取消报名</td><td><strong>' + f.cancelled + '</strong></td><td class="cell-sub">含退出候补</td></tr>' +
+        '<tr><td>审核通过 / 拒绝</td><td><strong>' + (f.reviewed - f.rejected) + ' / ' + f.rejected + '</strong></td><td class="cell-sub">拒绝率 ' + (f.reviewed ? Math.round(f.rejected / f.reviewed * 100) : 0) + '%</td></tr>' +
+        '</tbody></table></div>' +
+        '<div class="admin-grid" style="margin-top:24px"><div class="admin-card"><h3>取消原因分布</h3><div class="activity-table"><table><thead><tr><th>原因</th><th>次数</th><th>占比</th></tr></thead><tbody>' + reasonRows + '</tbody></table></div></div><div class="admin-card"><h3>按活动类型</h3><div class="activity-table"><table><thead><tr><th>类型</th><th>活动</th><th>正式/上限</th><th>利用率</th><th>候补</th><th>取消</th></tr></thead><tbody>' + typeRows + '</tbody></table></div></div></div>' +
+        '<div class="page-header" style="margin-top:24px"><h2 class="page-title">近 ' + data.days + ' 天趋势</h2><p class="page-desc">按事件发生日期聚合，可据此判断报名高峰与名额空置时段</p></div>' +
+        '<div class="activity-table"><table><thead><tr><th>日期</th><th>报名</th><th>递补</th><th>取消</th><th>出席记录</th><th>报名量</th></tr></thead><tbody>' + trendRows + '</tbody></table></div>' +
+        '<div class="page-header" style="margin-top:24px"><h2 class="page-title">最近事件</h2><p class="page-desc">最新 12 条过程事件，完整日志见“运行日志”</p></div>' +
+        '<div class="activity-table"><table><thead><tr><th>时间</th><th>类型</th><th>操作人</th><th>活动</th><th>说明</th></tr></thead><tbody>' + eventRows + '</tbody></table></div>';
+
+    appRoot().innerHTML = layoutShell('admin', 'admin-metrics', content);
+    bindLayoutEvents();
+    document.getElementById('metrics-days').addEventListener('change', event => {
+        renderAdminMetrics.days = Number(event.target.value) || 7;
+        render();
+    });
+}
+
+const EVENT_TYPE_LABEL = {
+    login: ['登录', 'status-joined'], login_failed: ['登录失败', 'status-rejected'], register: ['注册', 'status-joined'],
+    activity_create: ['发布活动', 'status-joined'], activity_update: ['修改活动', 'status-pending'],
+    activity_archive: ['归档活动', 'status-ended'], activity_suspend: ['停用活动', 'status-rejected'], activity_resume: ['恢复活动', 'status-joined'],
+    join_approved: ['报名成功', 'status-joined'], join_pending: ['提交待审核', 'status-pending'], join_waitlist: ['进入候补', 'status-waitlist'],
+    join_blocked: ['资格拦截', 'status-rejected'], cancel: ['取消报名', 'status-rejected'],
+    review_approve: ['审核通过', 'status-joined'], review_reject: ['审核拒绝', 'status-rejected'],
+    promote: ['候补递补', 'status-waitlist'], waitlist_confirm: ['确认名额', 'status-joined'], waitlist_expire: ['确认超时释放', 'status-rejected'],
+    checkin: ['出席记录', 'status-ongoing'], export: ['导出名单', 'status-noreview'],
+    slow_request: ['慢请求', 'status-pending']
+};
+
+function eventTypeTag(type) {
+    const meta = EVENT_TYPE_LABEL[type] || [type, 'status-noreview'];
+    return '<span class="status-tag ' + meta[1] + '">' + escapeHtml(meta[0]) + '</span>';
+}
+
+/* ============================== 管理员：运行日志（V3.0 新增） ============================== */
+
+async function renderAdminEvents() {
+    if (!renderAdminEvents.state) renderAdminEvents.state = { type: '', offset: 0, limit: 50 };
+    const state = renderAdminEvents.state;
+    const data = await Admin.getEvents({ type: state.type, limit: state.limit, offset: state.offset });
+    const options = [['', '全部类型']].concat(Object.keys(EVENT_TYPE_LABEL).map(key => [key, EVENT_TYPE_LABEL[key][0]]))
+        .map(([value, label]) => '<option value="' + value + '"' + (state.type === value ? ' selected' : '') + '>' + label + '</option>').join('');
+    const rows = data.list.length
+        ? data.list.map(event => '<tr><td class="cell-sub">' + escapeHtml(event.time) + '</td><td>' + eventTypeTag(event.type) + '</td><td>' + escapeHtml(event.actorName || '—') + '<div class="cell-sub">' + escapeHtml(event.actorRole || '') + '</div></td><td>' + escapeHtml(event.activityTitle || '—') + '</td><td>' + escapeHtml(event.result || '') + '</td><td class="cell-sub" style="max-width:320px">' + escapeHtml(event.detail || '') + '</td><td class="cell-sub">' + (event.durationMs === null || event.durationMs === undefined ? '—' : event.durationMs + 'ms') + '</td></tr>').join('')
+        : '<tr><td colspan="7" class="empty-state" style="padding:24px"><div class="empty-icon">🧾</div><div>暂无事件记录</div></td></tr>';
+    const total = data.total;
+    const from = total ? state.offset + 1 : 0;
+    const to = Math.min(total, state.offset + state.limit);
+    const content = '<div class="page-header"><h2 class="page-title">运行日志</h2><p class="page-desc">系统自动记录的过程事件（追加写 events.jsonl）。这是“下一次迭代”的数据来源：不再依赖外部数据包也能看到真实使用轨迹。</p></div>' +
+        '<div class="filter-bar"><select class="input-field filter-select" id="event-type">' + options + '</select><button class="btn btn-secondary btn-sm" id="event-refresh">刷新</button><span class="cell-sub" style="margin-left:8px">共 ' + total + ' 条，当前 ' + from + '–' + to + '</span></div>' +
+        '<div class="activity-table"><table><thead><tr><th>时间</th><th>类型</th><th>操作人</th><th>活动</th><th>结果</th><th>说明</th><th>耗时</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        '<div class="flex gap-8" style="margin-top:16px;justify-content:flex-end"><button class="btn btn-secondary btn-sm" id="event-prev" ' + (state.offset <= 0 ? 'disabled' : '') + '>上一页</button><button class="btn btn-secondary btn-sm" id="event-next" ' + (state.offset + state.limit >= total ? 'disabled' : '') + '>下一页</button></div>';
+    appRoot().innerHTML = layoutShell('admin', 'admin-events', content);
+    bindLayoutEvents();
+    document.getElementById('event-type').addEventListener('change', event => {
+        renderAdminEvents.state = { type: event.target.value, offset: 0, limit: state.limit };
+        render();
+    });
+    document.getElementById('event-refresh').addEventListener('click', () => render());
+    document.getElementById('event-prev').addEventListener('click', () => { renderAdminEvents.state.offset = Math.max(0, state.offset - state.limit); render(); });
+    document.getElementById('event-next').addEventListener('click', () => { renderAdminEvents.state.offset = state.offset + state.limit; render(); });
 }
 
 render();

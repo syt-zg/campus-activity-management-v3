@@ -3,8 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
+const { logEvent, readEvents, allEvents, localText, EVENT_TYPES } = require('./events');
 
 const PORT = Number(process.env.PORT || 3000);
+const VERSION = 'V3.0';
 const SECRET = process.env.JWT_SECRET || 'campus-activity-local-secret';
 const PUBLIC_DIR = path.resolve(__dirname, '../public');
 const DATA_DIR = path.resolve(process.env.CAMPUS_ACTIVITY_DATA_DIR || path.resolve(__dirname, '../data'));
@@ -21,6 +23,7 @@ fs.mkdirSync(DATA_DIR, { recursive: true });
 /* ==========================================================================
  * V2.0 领域常量
  * 需求来源：docs/V2-REQUIREMENTS.md（由三角色访谈证据整理）
+ * V3.0 在保留全部 V2.0 状态机的前提下，补充"过程"与"结果"两类数据
  * ========================================================================== */
 
 // 报名状态（R01）：待审核 / 正式参加 / 候补中 / 未通过
@@ -39,6 +42,38 @@ const ACTIVITY_STATUS = Object.freeze({ ACTIVE: 'active', SUSPENDED: 'suspended'
 
 const ROLE_LABEL = { student: '学生', teacher: '教师', admin: '系统管理员' };
 const ROLE_LOGIN_HINT = { student: '当前账号不是学生身份', teacher: '当前账号不是教师身份', admin: '当前账号不是系统管理员身份' };
+
+/* ---------------------- V3.0 新增领域常量 ---------------------- */
+
+/**
+ * 取消原因（V3.0）：V2.0 取消报名不留原因，导致"为什么退"完全不可分析。
+ * 枚举值直接对应模拟数据包里可出现的高频原因，便于口径对齐。
+ */
+const CANCEL_REASONS = Object.freeze([
+  '时间冲突',
+  '临时有事',
+  '地点不便',
+  '兴趣变化',
+  '已报其他活动',
+  '身体原因',
+  '其他'
+]);
+const AUTO_EXPIRE_REASON = '递补后未按时确认，系统自动释放';
+
+/**
+ * 递补确认时限（小时）。V3.0：递补不再"直接到账"，而是给出确认窗口，
+ * 超时未确认自动释放并顺位递补下一位，避免名额被长期占住。
+ * 环境变量可覆盖，便于用 0.001 小时做快速验证而不必等 24 小时。
+ */
+const WAITLIST_CONFIRM_HOURS = (() => {
+  const raw = Number(process.env.WAITLIST_CONFIRM_HOURS);
+  return Number.isFinite(raw) && raw > 0 ? raw : 24;
+})();
+
+function hoursLater(hours) {
+  return localText(new Date(Date.now() + hours * 3600 * 1000));
+}
+
 
 /* ============================ 数据初始化 ============================ */
 
@@ -114,7 +149,12 @@ function writeJson(file, value) {
 }
 
 function nextId(list) { return list.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1; }
-function nowText() { return new Date().toISOString().replace('T', ' ').slice(0, 19); }
+/**
+ * V3.0 修复：V2.0 的 nowText() 返回 ISO/UTC 文本，而活动起止时间是本地时间，
+ * 导致界面上"申请时间"比实际早 8 小时，且与递补截止时间无法直接比较。
+ * 统一改为本地时间文本，与 startTime、confirmDeadline 保持同一口径。
+ */
+function nowText() { return localText(); }
 
 let users = readJson(USERS_FILE, seedUsers);
 let activities = readJson(ACTIVITIES_FILE, []);
@@ -135,8 +175,12 @@ function migrateActivity(raw) {
   const item = Object.assign({}, raw);
   item.requireReview = raw.requireReview === true;              // R07，默认不需要审核
   item.eligibility = typeof raw.eligibility === 'string' ? raw.eligibility : ''; // R08
+  item.eligibilityRule = typeof raw.eligibilityRule === 'string' ? raw.eligibilityRule : ''; // V3.0：可判定的资格规则
   item.status = raw.status === ACTIVITY_STATUS.SUSPENDED ? ACTIVITY_STATUS.SUSPENDED : ACTIVITY_STATUS.ACTIVE; // R16
   item.createTime = raw.createTime || raw.startTime || nowText();
+  item.archived = raw.archived === true;                        // V3.0：软删除，保留报名历史
+  item.archivedTime = raw.archivedTime || '';
+  item.cancellations = Array.isArray(raw.cancellations) ? raw.cancellations : []; // V3.0：取消流水
 
   if (!Array.isArray(item.registrations)) {
     const legacyJoined = Array.isArray(raw.joined) ? raw.joined : [];
@@ -154,7 +198,12 @@ function migrateActivity(raw) {
       applyTime: reg.applyTime || item.createTime,
       waitlistTime: reg.waitlistTime || '',
       approvedTime: reg.approvedTime || '',
-      reviewTime: reg.reviewTime || ''
+      reviewTime: reg.reviewTime || '',
+      // V3.0 新增字段（旧数据补默认值，保持向后兼容）
+      confirmDeadline: reg.confirmDeadline || '',
+      confirmedTime: reg.confirmedTime || '',
+      attended: reg.attended === true ? true : reg.attended === false ? false : null,
+      checkinTime: reg.checkinTime || ''
     }));
   delete item.joined;
   return item;
@@ -335,11 +384,82 @@ function promoteFromWaitlist(item) {
     if (!queue.length) break;
     const next = queue[0];
     next.status = REG.APPROVED;
-    next.approvedTime = nowText();
+    next.approvedTime = localText();
+    // V3.0：递补不再是"直接到账"，而是给出确认窗口，超时未确认将自动释放
+    next.confirmDeadline = hoursLater(WAITLIST_CONFIRM_HOURS);
+    next.confirmedTime = '';
     promoted.push(next);
   }
   return promoted;
 }
+
+/**
+ * V3.0：递补确认窗口的惰性结算。
+ * ------------------------------------------------------------------
+ * 刻意不使用 setInterval 定时器：桌面端进程休眠/关闭后定时器不执行，
+ * 场景一旦错过就永久失效；改为在读取数据时按当前时间结算，
+ * 无论进程何时启动都能把过期的名额补齐，逻辑也更易测试。
+ */
+function settleActivity(item) {
+  let changed = false;
+  let guard = 0;
+  while (guard < 50) {
+    guard += 1;
+    const expired = regs(item).filter(reg =>
+      reg.status === REG.APPROVED && reg.confirmDeadline && !reg.confirmedTime &&
+      String(reg.confirmDeadline).replace(' ', 'T') <= localText().replace(' ', 'T')
+    );
+    if (!expired.length) break;
+    expired.forEach(reg => {
+      const student = users.find(u => Number(u.id) === Number(reg.userId));
+      const name = student ? (student.real_name || '') : '';
+      item.registrations = regs(item).filter(r => Number(r.userId) !== Number(reg.userId));
+      item.cancellations = (item.cancellations || []).concat([{
+        userId: Number(reg.userId),
+        real_name: name,
+        time: localText(),
+        reason: AUTO_EXPIRE_REASON,
+        previousStatus: REG.APPROVED
+      }]);
+      logEvent(EVENT_TYPES.WAITLIST_EXPIRE, {
+        actor: student || null,
+        activity: item,
+        result: 'expired',
+        detail: '递补后未在 ' + reg.confirmDeadline + ' 前确认，名额已释放'
+      });
+      changed = true;
+    });
+    const promoted = promoteFromWaitlist(item);
+    promoted.forEach(reg => {
+      const student = users.find(u => Number(u.id) === Number(reg.userId));
+      logEvent(EVENT_TYPES.PROMOTE, {
+        actor: student || null,
+        activity: item,
+        result: 'promoted',
+        detail: '候补顺位递补，确认截止 ' + reg.confirmDeadline
+      });
+    });
+    if (!promoted.length) break;
+    changed = true;
+  }
+  return changed;
+}
+
+/** 对所有可见活动做一次惰性结算；返回是否有变化，便于决定是否落盘 */
+function settleAll() {
+  let changed = false;
+  activities.forEach(item => { if (settleActivity(item)) changed = true; });
+  if (changed) writeJson(ACTIVITIES_FILE, activities);
+  return changed;
+}
+
+/** 单个活动结算并立即落盘（用于活动级读写接口） */
+function settleOne(item) {
+  if (settleActivity(item)) writeJson(ACTIVITIES_FILE, activities);
+}
+
+/** V3.0：统计口径辅助 —— 出席人数、取消数 */
+function attendedList(item) { return regs(item).filter(reg => reg.attended === true); }
 
 function activityView(item) {
   const approved = approvedList(item).length;
@@ -351,7 +471,11 @@ function activityView(item) {
     waitlistCount: waitlistList(item).length,
     pendingCount: pendingList(item).length,
     rejectedCount: rejectedList(item).length,
-    remaining: Math.max(0, Number(item.maxParticipants || 0) - approved)
+    remaining: Math.max(0, Number(item.maxParticipants || 0) - approved),
+    // V3.0：过程与结果口径
+    cancelledCount: (item.cancellations || []).length,
+    attendedCount: attendedList(item).length,
+    needConfirmCount: regs(item).filter(reg => reg.status === REG.APPROVED && reg.confirmDeadline && !reg.confirmedTime).length
   });
 }
 
@@ -359,13 +483,19 @@ function activityView(item) {
 function myRegistration(item, userId) {
   const reg = findReg(item, userId);
   if (!reg) return null;
+  const needConfirm = reg.status === REG.APPROVED && Boolean(reg.confirmDeadline) && !reg.confirmedTime;
   return {
     status: reg.status,
     applyTime: reg.applyTime || '',
     waitlistTime: reg.waitlistTime || '',
     approvedTime: reg.approvedTime || '',
     reviewTime: reg.reviewTime || '',
-    position: reg.status === REG.WAITLIST ? waitlistPosition(item, userId) : 0
+    position: reg.status === REG.WAITLIST ? waitlistPosition(item, userId) : 0,
+    // V3.0：递补确认窗口
+    confirmDeadline: reg.confirmDeadline || '',
+    confirmedTime: reg.confirmedTime || '',
+    needConfirm,
+    attended: reg.attended === true ? true : reg.attended === false ? false : null
   };
 }
 
@@ -385,7 +515,12 @@ function registrationRows(item) {
         applyTime: reg.applyTime || '',
         waitlistTime: reg.waitlistTime || '',
         approvedTime: reg.approvedTime || '',
-        position: reg.status === REG.WAITLIST ? waitlistPosition(item, reg.userId) : 0
+        position: reg.status === REG.WAITLIST ? waitlistPosition(item, reg.userId) : 0,
+        confirmDeadline: reg.confirmDeadline || '',
+        confirmedTime: reg.confirmedTime || '',
+        needConfirm: reg.status === REG.APPROVED && Boolean(reg.confirmDeadline) && !reg.confirmedTime,
+        attended: reg.attended === true ? true : reg.attended === false ? false : null,
+        checkinTime: reg.checkinTime || ''
       };
     });
 }
@@ -398,7 +533,12 @@ function activitySummary(item) {
     pendingCount: pendingList(item).length,
     rejectedCount: rejectedList(item).length,
     remaining: remainingSeats(item),
-    requireReview: item.requireReview === true
+    requireReview: item.requireReview === true,
+    // V3.0
+    attendedCount: attendedList(item).length,
+    cancelledCount: (item.cancellations || []).length,
+    needConfirmCount: regs(item).filter(reg => reg.status === REG.APPROVED && reg.confirmDeadline && !reg.confirmedTime).length,
+    eligibilityRule: item.eligibilityRule || ''
   };
 }
 
@@ -421,18 +561,19 @@ async function api(req, res, url) {
     return;
   }
 
-  if (p === '/api/health') return ok(res, '服务正常', { mode: 'local-json', version: 'V2.0' });
+  if (p === '/api/health') return ok(res, '服务正常', { mode: 'local-json', version: VERSION, events: true });
 
   /* ---------------- 认证 ---------------- */
   if (p === '/api/auth/login' && req.method === 'POST') {
     const data = await body(req); const username = String(data.username || '').trim(); const password = String(data.password || '');
     if (!username || !password) return fail(res, '账号和密码不能为空');
     const user = users.find(item => String(item.username || item.account) === username);
-    if (!user) return fail(res, '账号不存在，请先注册或检查账号是否正确', 401);
+    if (!user) { logEvent(EVENT_TYPES.LOGIN_FAILED, { result: 'fail', detail: '账号不存在：' + username }); return fail(res, '账号不存在，请先注册或检查账号是否正确', 401); }
     if (user.role === 'teacher' && !user.teacherAuthenticated) return fail(res, '教师尚未完成认证，请先点击“教师认证”提交申请', 403);
     if ((user.status || USER_STATUS.ACTIVE) === USER_STATUS.DISABLED) return fail(res, '账号已被平台停用，请联系系统管理员', 403); // R15
-    if (!checkPassword(password, user)) return fail(res, '密码错误，请检查密码是否正确', 401);
+    if (!checkPassword(password, user)) { logEvent(EVENT_TYPES.LOGIN_FAILED, { actor: user, result: 'fail', detail: '密码错误' }); return fail(res, '密码错误，请检查密码是否正确', 401); }
     // 兼容 V1.0 的明文密码字段，但登录本身不改写用户文件，避免首次登录造成数据变化。
+    logEvent(EVENT_TYPES.LOGIN, { actor: user, result: 'ok', detail: '角色：' + (ROLE_LABEL[user.role] || user.role) });
     return ok(res, '登录成功', { token: makeToken(user), user: publicUser(user) });
   }
   if (p === '/api/auth/teacher/apply' && req.method === 'POST') {
@@ -480,7 +621,9 @@ async function api(req, res, url) {
     if (password.length < 6) return fail(res, '密码至少需要 6 位');
     if (users.some(item => String(item.username || item.account) === username)) return fail(res, '该学号已被注册，请直接登录', 409);
     const user = { id: nextId(users), username, real_name: name, class_name: String(data.class_name || '').trim(), role: 'student', passwordHash: hash(password), status: USER_STATUS.ACTIVE };
-    users.push(user); writeJson(USERS_FILE, users); return ok(res, '注册成功', { user: publicUser(user) });
+    users.push(user); writeJson(USERS_FILE, users);
+    logEvent(EVENT_TYPES.REGISTER, { actor: user, detail: '班级：' + (user.class_name || '未填写') });
+    return ok(res, '注册成功', { user: publicUser(user) });
   }
   if (p === '/api/auth/info' && req.method === 'GET') { const user = auth(req, res); return user ? ok(res, '获取成功', publicUser(user)) : undefined; }
   if (p === '/api/auth/avatar' && req.method === 'PUT') {
@@ -523,8 +666,10 @@ async function api(req, res, url) {
   /* ---------------- 活动：公共与教师 ---------------- */
   if (p === '/api/activity/list' && req.method === 'GET') {
     const user = auth(req, res); if (!user) return;
+    settleAll();  // V3.0：读取时结算已过期的递补确认窗口
     // R16：被平台停用的活动对学生不可见；教师/管理员仍需在各自后台看到
     let list = activities
+      .filter(item => item.archived !== true)
       .filter(item => user.role !== 'student' || (item.status || ACTIVITY_STATUS.ACTIVE) === ACTIVITY_STATUS.ACTIVE)
       .map(item => Object.assign(activityView(item), { myRegistration: user.role === 'student' ? myRegistration(item, user.id) : null }));
     const keyword = String(url.searchParams.get('keyword') || '').toLowerCase();
@@ -535,11 +680,17 @@ async function api(req, res, url) {
   }
   if (p === '/api/activity/my' && req.method === 'GET') {
     const user = auth(req, res, 'teacher'); if (!user) return;
-    return ok(res, '获取成功', activities.filter(item => Number(item.publisherId) === Number(user.id)).map(item => Object.assign(activityView(item), { summary: activitySummary(item) })));
+    settleAll();
+    return ok(res, '获取成功', activities
+      .filter(item => item.archived !== true)
+      .filter(item => Number(item.publisherId) === Number(user.id))
+      .map(item => Object.assign(activityView(item), { summary: activitySummary(item) })));
   }
   if (p === '/api/activity/myjoin' && req.method === 'GET') {
     const user = auth(req, res, 'student'); if (!user) return;
+    settleAll();
     const list = activities
+      .filter(item => item.archived !== true)
       .filter(item => findReg(item, user.id))
       .map(item => Object.assign(activityView(item), { myRegistration: myRegistration(item, user.id) }));
     return ok(res, '获取成功', list);
@@ -554,30 +705,52 @@ async function api(req, res, url) {
       publisherId: user.id, publisher: user.real_name,
       requireReview: data.require_review === true,                 // R07
       eligibility: String(data.eligibility || '').trim(),          // R08
+      eligibilityRule: String(data.eligibility_rule || '').trim(), // V3.0：可判定的资格规则
       status: ACTIVITY_STATUS.ACTIVE,                              // R16
+      archived: false, archivedTime: '', cancellations: [],         // V3.0
       createTime: nowText(),
       registrations: []
     };
-    activities.push(item); writeJson(ACTIVITIES_FILE, activities); return ok(res, '发布成功', { id: item.id });
+    activities.push(item); writeJson(ACTIVITIES_FILE, activities);
+    logEvent(EVENT_TYPES.ACTIVITY_CREATE, { actor: user, activity: item, detail: '名额上限 ' + item.maxParticipants + (item.eligibilityRule ? '，资格限定「' + item.eligibilityRule + '」' : '') });
+    return ok(res, '发布成功', { id: item.id });
   }
 
-  const match = p.match(/^\/api\/activity\/(\d+)(?:\/(join|joinlist|review|registrations))?$/);
+  const match = p.match(/^\/api\/activity\/(\d+)(?:\/(join|joinlist|review|confirm|checkin|export))?$/);
   if (!match) return fail(res, '接口不存在', 404);
   const id = Number(match[1]);
   const item = activities.find(activity => Number(activity.id) === id);
-  if (!item) return fail(res, '活动不存在', 404);
+  if (!item || item.archived === true) return fail(res, '活动不存在', 404);
+  // V3.0：任何针对单个活动的读写都先结算过期的递补确认窗口，
+  // 保证教师看到的名单、学生看到的状态与统计口径始终一致。
+  settleOne(item);
 
   if (!match[2] && req.method === 'GET') {
     const user = auth(req, res); if (!user) return;
     if (user.role === 'student' && (item.status || ACTIVITY_STATUS.ACTIVE) === ACTIVITY_STATUS.SUSPENDED) return fail(res, '该活动已被平台停用', 403);
-    return ok(res, '获取成功', Object.assign(activityView(item), { myRegistration: user.role === 'student' ? myRegistration(item, user.id) : null }));
+    return ok(res, '获取成功', Object.assign(activityView(item), {
+      myRegistration: user.role === 'student' ? myRegistration(item, user.id) : null,
+      confirmHours: WAITLIST_CONFIRM_HOURS
+    }));
   }
 
-  /* ---------------- 学生：报名 / 取消（R02 / R04 / R05 / R06） ---------------- */
+  /* ---------------- 学生：报名（R02 / R04 / R05 / R06 + V3.0 资格校验） ---------------- */
   if (match[2] === 'join' && req.method === 'POST') {
     const user = auth(req, res, 'student'); if (!user) return;
     if ((item.status || ACTIVITY_STATUS.ACTIVE) === ACTIVITY_STATUS.SUSPENDED) return fail(res, '该活动已被平台停用，无法报名');
     if (timeStatus(item) !== '未开始') return fail(res, '活动已开始或结束，禁止报名');
+
+    // V3.0（修复 R08 未落地）：eligibilityRule 是可判定的班级/年级关键词，
+    // 学生所属班级不包含该关键词时拒绝报名，并留下拦截证据。
+    const rule = String(item.eligibilityRule || '').trim();
+    if (rule && !String(user.class_name || '').includes(rule)) {
+      logEvent(EVENT_TYPES.JOIN_BLOCKED, {
+        actor: user, activity: item, result: 'blocked',
+        detail: '资格限定「' + rule + '」，本人班级「' + (user.class_name || '未填写') + '」不匹配'
+      });
+      return fail(res, '该活动限定「' + rule + '」，您的班级（' + (user.class_name || '未填写') + '）不符合参加资格');
+    }
+
     const existing = findReg(item, user.id);
     if (existing && ACTIVE_REG_STATUS.includes(existing.status)) return fail(res, '您已报名该活动');
     if (existing && existing.status === REG.REJECTED) return fail(res, '您的报名未通过审核，无法重复报名');
@@ -586,31 +759,51 @@ async function api(req, res, url) {
     let record;
     if (item.requireReview === true) {
       // R10：需要审核的活动先进入"待审核"，不占用正式名额
-      record = { userId: user.id, status: REG.PENDING, applyTime: stamp, waitlistTime: '', approvedTime: '', reviewTime: '' };
+      record = { userId: user.id, status: REG.PENDING, applyTime: stamp, waitlistTime: '', approvedTime: '', reviewTime: '', confirmDeadline: '', confirmedTime: '', attended: null, checkinTime: '' };
     } else if (remainingSeats(item) > 0) {
-      record = { userId: user.id, status: REG.APPROVED, applyTime: stamp, waitlistTime: '', approvedTime: stamp, reviewTime: '' };
+      record = { userId: user.id, status: REG.APPROVED, applyTime: stamp, waitlistTime: '', approvedTime: stamp, reviewTime: '', confirmDeadline: '', confirmedTime: '', attended: null, checkinTime: '' };
     } else {
       // R02 / R03：满员后进入候补队列，按进入时间排序
-      record = { userId: user.id, status: REG.WAITLIST, applyTime: stamp, waitlistTime: stamp, approvedTime: '', reviewTime: '' };
+      record = { userId: user.id, status: REG.WAITLIST, applyTime: stamp, waitlistTime: stamp, approvedTime: '', reviewTime: '', confirmDeadline: '', confirmedTime: '', attended: null, checkinTime: '' };
     }
     if (existing) Object.assign(existing, record); else regs(item).push(record);
     writeJson(ACTIVITIES_FILE, activities);
 
     const mine = myRegistration(item, user.id);
+    logEvent(record.status === REG.PENDING ? EVENT_TYPES.JOIN_PENDING
+      : record.status === REG.WAITLIST ? EVENT_TYPES.JOIN_WAITLIST : EVENT_TYPES.JOIN_APPROVED,
+      { actor: user, activity: item, detail: '状态：' + record.status + (record.status === REG.WAITLIST ? '，当前第 ' + mine.position + ' 位' : '') });
+
     const message = record.status === REG.PENDING ? '报名申请已提交，等待活动组织教师审核'
       : record.status === REG.WAITLIST ? '活动名额已满，已加入候补队列（第 ' + mine.position + ' 位）'
         : '报名成功';
     return ok(res, message, { registration: mine, activity: activityView(item) });
   }
 
+  /* ---------------- 学生：取消报名（V3.0 增加原因留痕） ---------------- */
   if (match[2] === 'join' && req.method === 'DELETE') {
     const user = auth(req, res, 'student'); if (!user) return;
     const existing = findReg(item, user.id);
     if (!existing) return fail(res, '您尚未报名该活动');
-    if (timeStatus(item) === '已结束') return fail(res, '活动已结束，无法取消报名');
+    // V3.0 决策：活动开始后不允许"取消"，否则名额会递补给已开始的活动，
+    // 实际出席情况改为由教师签到记录（attended 字段）体现。
+    if (timeStatus(item) !== '未开始') return fail(res, '活动已开始，无法取消报名；如无法参加请联系活动组织教师');
+    const data = await body(req);
+    const reasonText = String(data.reason || '').trim();
+    const reason = CANCEL_REASONS.includes(reasonText) ? reasonText : (reasonText ? '其他' : '未填写');
+    const note = String(data.note || '').trim().slice(0, 100);
+
     const wasApproved = existing.status === REG.APPROVED;
     const wasWaitlist = existing.status === REG.WAITLIST;
     item.registrations = regs(item).filter(reg => Number(reg.userId) !== Number(user.id));
+    // V3.0：取消流水单独留存，活动/报名记录被移除后仍可统计"为什么退"
+    item.cancellations = (item.cancellations || []).concat([{
+      userId: Number(user.id),
+      real_name: user.real_name || '',
+      time: localText(),
+      reason: note ? reason + '（' + note + '）' : reason,
+      previousStatus: existing.status
+    }]);
     // R05 / R06：正式名额被释放后，按候补顺序自动递补
     const promoted = wasApproved ? promoteFromWaitlist(item) : [];
     writeJson(ACTIVITIES_FILE, activities);
@@ -618,17 +811,97 @@ async function api(req, res, url) {
       const student = users.find(u => Number(u.id) === Number(reg.userId));
       return student ? student.real_name : '';
     }).filter(Boolean);
+    logEvent(EVENT_TYPES.CANCEL, {
+      actor: user, activity: item,
+      detail: '原状态：' + existing.status + '，原因：' + (note ? reason + '（' + note + '）' : reason) +
+        (promotedNames.length ? '，自动递补：' + promotedNames.join('、') : '')
+    });
+    promoted.forEach(reg => {
+      const student = users.find(u => Number(u.id) === Number(reg.userId));
+      logEvent(EVENT_TYPES.PROMOTE, { actor: student || null, activity: item, result: 'promoted', detail: '取消释放名额后递补，确认截止 ' + reg.confirmDeadline });
+    });
     const message = wasWaitlist ? '已退出候补队列'
       : wasApproved && promotedNames.length ? '取消报名成功，已自动递补：' + promotedNames.join('、')
         : '取消报名成功';
     return ok(res, message, { promotedCount: promoted.length, promotedNames });
   }
 
-  /* ---------------- 教师：报名名单（R09 / R11） ---------------- */
+  /* ---------------- 学生：确认递补名额（V3.0 新增） ---------------- */
+  if (match[2] === 'confirm' && req.method === 'POST') {
+    const user = auth(req, res, 'student'); if (!user) return;
+    const reg = findReg(item, user.id);
+    if (!reg) return fail(res, '您尚未报名该活动');
+    if (reg.status !== REG.APPROVED) return fail(res, '当前状态为“' + reg.status + '”，无需确认名额');
+    if (!reg.confirmDeadline) return fail(res, '该报名无需确认');
+    if (reg.confirmedTime) return ok(res, '名额已确认，无需重复操作', { registration: myRegistration(item, user.id) });
+    reg.confirmedTime = localText();
+    writeJson(ACTIVITIES_FILE, activities);
+    logEvent(EVENT_TYPES.WAITLIST_CONFIRM, { actor: user, activity: item, detail: '已在截止时间 ' + reg.confirmDeadline + ' 前确认' });
+    return ok(res, '名额已确认，请按时参加活动', { registration: myRegistration(item, user.id), activity: activityView(item) });
+  }
+
+  /* ---------------- 教师：报名名单（R09 / R11 + V3.0 出席与取消流水） ---------------- */
   if (match[2] === 'joinlist' && req.method === 'GET') {
     const user = auth(req, res, 'teacher'); if (!user) return;
     if (Number(item.publisherId) !== Number(user.id)) return fail(res, '活动不存在或非本人发布', 403);
-    return ok(res, '获取成功', { activity: activityView(item), summary: activitySummary(item), registrations: registrationRows(item) });
+    return ok(res, '获取成功', {
+      activity: activityView(item),
+      summary: activitySummary(item),
+      registrations: registrationRows(item),
+      cancellations: (item.cancellations || []).slice().reverse(),
+      confirmHours: WAITLIST_CONFIRM_HOURS
+    });
+  }
+
+  /* ---------------- 教师：标记出席（V3.0 新增，签到的最小实现） ---------------- */
+  if (match[2] === 'checkin' && req.method === 'PUT') {
+    const user = auth(req, res, 'teacher'); if (!user) return;
+    if (Number(item.publisherId) !== Number(user.id)) return fail(res, '活动不存在或非本人发布', 403);
+    if (timeStatus(item) === '未开始') return fail(res, '活动尚未开始，无法记录出席');
+    const data = await body(req);
+    const targetId = Number(data.userId);
+    if (!targetId) return fail(res, '请指定学生');
+    const reg = findReg(item, targetId);
+    if (!reg) return fail(res, '该学生没有有效报名记录');
+    if (reg.status !== REG.APPROVED) return fail(res, '只有“正式参加”的学生可以记录出席，当前为“' + reg.status + '”');
+    reg.attended = data.attended === true;
+    reg.checkinTime = localText();
+    writeJson(ACTIVITIES_FILE, activities);
+    const student = users.find(u => Number(u.id) === Number(targetId));
+    logEvent(EVENT_TYPES.CHECKIN, {
+      actor: user, activity: item,
+      detail: (student ? student.real_name : '学生') + ' 标记为' + (reg.attended ? '已出席' : '未出席')
+    });
+    return ok(res, reg.attended ? '已记录出席' : '已记录未出席', {
+      summary: activitySummary(item),
+      registration: myRegistration(item, targetId)
+    });
+  }
+
+  /* ---------------- 教师：导出报名名单 CSV（V3.0 新增） ---------------- */
+  if (match[2] === 'export' && req.method === 'GET') {
+    const user = auth(req, res, 'teacher'); if (!user) return;
+    if (Number(item.publisherId) !== Number(user.id)) return fail(res, '活动不存在或非本人发布', 403);
+    const rows = registrationRows(item);
+    const header = ['序号', '姓名', '学号', '班级', '报名状态', '申请时间', '递补确认截止', '出席情况', '签到时间'];
+    const cell = value => {
+      const text = String(value === undefined || value === null ? '' : value);
+      return /[",\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+    };
+    const lines = [header.join(',')].concat(rows.map((reg, index) => [
+      index + 1, reg.real_name, reg.username, reg.class_name, reg.status,
+      reg.applyTime, reg.confirmDeadline || '', reg.attended === true ? '已出席' : reg.attended === false ? '未出席' : '未记录',
+      reg.checkinTime || ''
+    ].map(cell).join(',')));
+    const fileName = encodeURIComponent('报名名单-' + item.title + '.csv');
+    res.writeHead(200, {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': "attachment; filename*=UTF-8''" + fileName,
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end('\uFEFF' + lines.join('\r\n'));
+    logEvent(EVENT_TYPES.EXPORT, { actor: user, activity: item, detail: '导出报名名单 ' + rows.length + ' 条' });
+    return;
   }
 
   /* ---------------- 教师：审核报名申请（R09 / R10） ---------------- */
@@ -658,6 +931,13 @@ async function api(req, res, url) {
     writeJson(ACTIVITIES_FILE, activities);
     const student = users.find(u => Number(u.id) === targetId);
     const name = student ? student.real_name : '';
+    // V3.0：审核结果入事件流，可据此统计平均审核时长与拒绝率
+    const waitedMinutes = Math.max(0, Math.round((Date.parse(String(stamp).replace(' ', 'T')) - Date.parse(String(reg.applyTime).replace(' ', 'T'))) / 60000));
+    logEvent(action === 'reject' ? EVENT_TYPES.REVIEW_REJECT : EVENT_TYPES.REVIEW_APPROVE, {
+      actor: user, activity: item, result: action,
+      detail: name + ' → ' + reg.status + '，等待 ' + (Number.isFinite(waitedMinutes) ? waitedMinutes : 0) + ' 分钟',
+      durationMs: Number.isFinite(waitedMinutes) ? waitedMinutes * 60000 : null
+    });
     const message = reg.status === REG.REJECTED ? '已拒绝 ' + name + ' 的报名申请'
       : reg.status === REG.WAITLIST ? '已通过 ' + name + ' 的报名，因名额已满已转入候补'
         : '已通过 ' + name + ' 的报名申请';
@@ -677,19 +957,32 @@ async function api(req, res, url) {
       title: data.title, type: data.type || '其他', description: data.content, notice: data.notice || '',
       location: data.place, startTime: data.start_time, endTime: data.end_time, maxParticipants: nextMax,
       requireReview: data.require_review === true,
-      eligibility: String(data.eligibility || '').trim()
+      eligibility: String(data.eligibility || '').trim(),
+      eligibilityRule: String(data.eligibility_rule || '').trim()   // V3.0
     });
     // 上限调大后，候补队列可自动补位
-    promoteFromWaitlist(item);
+    const promoted = promoteFromWaitlist(item);
     writeJson(ACTIVITIES_FILE, activities);
+    logEvent(EVENT_TYPES.ACTIVITY_UPDATE, {
+      actor: user, activity: item,
+      detail: '名额 ' + nextMax + '，资格限定「' + (item.eligibilityRule || '不限') + '」' +
+        (promoted.length ? '，递补 ' + promoted.length + ' 人' : '')
+    });
     return ok(res, '修改成功', { activity: activityView(item) });
   }
   if (!match[2] && req.method === 'DELETE') {
     const user = auth(req, res, 'teacher'); if (!user) return;
     if (Number(item.publisherId) !== Number(user.id)) return fail(res, '活动不存在或非本人发布', 403);
-    activities = activities.filter(activity => Number(activity.id) !== id);
+    // V3.0 决策：删除改为"归档"（软删除）。V2.0 直接 filter 掉会导致报名、
+    // 候补与取消流水全部丢失，事后无法复盘，也无法解释历史数据。
+    item.archived = true;
+    item.archivedTime = localText();
     writeJson(ACTIVITIES_FILE, activities);
-    return ok(res, '删除成功');
+    logEvent(EVENT_TYPES.ACTIVITY_ARCHIVE, {
+      actor: user, activity: item,
+      detail: '归档活动，保留报名 ' + regs(item).length + ' 条、取消 ' + (item.cancellations || []).length + ' 条历史'
+    });
+    return ok(res, '活动已删除（历史记录已保留，可供统计与复盘）');
   }
 
   return fail(res, '接口不存在', 404);
@@ -703,14 +996,129 @@ async function adminApi(req, res, url) {
   const p = url.pathname;
 
   if (p === '/api/admin/overview' && req.method === 'GET') {
+    settleAll();
+    const live = activities.filter(item => item.archived !== true);
     return ok(res, '获取成功', {
       userCount: users.length,
       studentCount: users.filter(item => item.role === 'student').length,
       teacherCount: users.filter(item => item.role === 'teacher').length,
       disabledCount: users.filter(item => (item.status || USER_STATUS.ACTIVE) === USER_STATUS.DISABLED).length,
-      activityCount: activities.length,
-      suspendedCount: activities.filter(item => (item.status || ACTIVITY_STATUS.ACTIVE) === ACTIVITY_STATUS.SUSPENDED).length
+      activityCount: live.length,
+      suspendedCount: live.filter(item => (item.status || ACTIVITY_STATUS.ACTIVE) === ACTIVITY_STATUS.SUSPENDED).length,
+      // V3.0
+      archivedCount: activities.filter(item => item.archived === true).length,
+      registrationCount: live.reduce((sum, item) => sum + regs(item).length, 0),
+      cancelCount: live.reduce((sum, item) => sum + (item.cancellations || []).length, 0),
+      eventCount: allEvents().length
     });
+  }
+
+  /* ---------------- V3.0：运行统计（把过程数据变成可读指标） ---------------- */
+  if (p === '/api/admin/metrics' && req.method === 'GET') {
+    settleAll();
+    const days = Math.min(90, Math.max(1, Number(url.searchParams.get('days') || 7)));
+    const events = allEvents();
+    const countOf = type => events.filter(item => item.type === type).length;
+    const live = activities.filter(item => item.archived !== true);
+    const allRegs = live.flatMap(item => regs(item));
+    const approved = allRegs.filter(reg => reg.status === REG.APPROVED);
+    const attended = approved.filter(reg => reg.attended === true);
+    const recorded = approved.filter(reg => reg.attended === true || reg.attended === false);
+    const cancelRecords = live.flatMap(item => item.cancellations || []);
+
+    // 报名 → 候补 → 递补 → 确认 → 出席 漏斗
+    const funnel = {
+      joinApproved: countOf(EVENT_TYPES.JOIN_APPROVED),
+      joinPending: countOf(EVENT_TYPES.JOIN_PENDING),
+      joinWaitlist: countOf(EVENT_TYPES.JOIN_WAITLIST),
+      joinBlocked: countOf(EVENT_TYPES.JOIN_BLOCKED),
+      promoted: countOf(EVENT_TYPES.PROMOTE),
+      confirmed: countOf(EVENT_TYPES.WAITLIST_CONFIRM),
+      expired: countOf(EVENT_TYPES.WAITLIST_EXPIRE),
+      cancelled: countOf(EVENT_TYPES.CANCEL),
+      reviewed: countOf(EVENT_TYPES.REVIEW_APPROVE) + countOf(EVENT_TYPES.REVIEW_REJECT),
+      rejected: countOf(EVENT_TYPES.REVIEW_REJECT),
+      checkedIn: countOf(EVENT_TYPES.CHECKIN)
+    };
+
+    // 取消原因分布（数据来源：活动上的取消流水，不依赖事件文件）
+    const reasonMap = new Map();
+    cancelRecords.forEach(record => {
+      const key = String(record.reason || '未填写').split('（')[0];
+      reasonMap.set(key, (reasonMap.get(key) || 0) + 1);
+    });
+    const cancelReasons = Array.from(reasonMap.entries())
+      .map(([reason, count]) => ({ reason, count }))
+      .sort((a, b) => b.count - a.count);
+
+    // 按活动类型聚合
+    const typeMap = new Map();
+    live.forEach(item => {
+      const key = item.type || '其他';
+      const row = typeMap.get(key) || { type: key, activities: 0, approved: 0, capacity: 0, cancelled: 0, waitlisted: 0 };
+      row.activities += 1;
+      row.approved += approvedList(item).length;
+      row.capacity += Number(item.maxParticipants || 0);
+      row.cancelled += (item.cancellations || []).length;
+      row.waitlisted += waitlistList(item).length;
+      typeMap.set(key, row);
+    });
+    const byType = Array.from(typeMap.values())
+      .map(row => Object.assign(row, { seatUsage: row.capacity ? Math.round(row.approved / row.capacity * 1000) / 10 : 0 }))
+      .sort((a, b) => b.approved - a.approved);
+
+    // 近 N 天事件趋势
+    const trendMap = new Map();
+    for (let i = days - 1; i >= 0; i -= 1) {
+      const date = localText(new Date(Date.now() - i * 86400000)).slice(0, 10);
+      trendMap.set(date, { date, joins: 0, cancels: 0, promotes: 0, checkins: 0 });
+    }
+    events.forEach(event => {
+      const date = String(event.time || '').slice(0, 10);
+      const row = trendMap.get(date);
+      if (!row) return;
+      if ([EVENT_TYPES.JOIN_APPROVED, EVENT_TYPES.JOIN_PENDING, EVENT_TYPES.JOIN_WAITLIST].includes(event.type)) row.joins += 1;
+      else if (event.type === EVENT_TYPES.CANCEL) row.cancels += 1;
+      else if (event.type === EVENT_TYPES.PROMOTE) row.promotes += 1;
+      else if (event.type === EVENT_TYPES.CHECKIN) row.checkins += 1;
+    });
+
+    // 审核等待时长（数据来源：报名记录上的 applyTime / reviewTime）
+    const reviewedRegs = allRegs.filter(reg => reg.reviewTime && reg.applyTime);
+    const waits = reviewedRegs.map(reg => {
+      const diff = Date.parse(String(reg.reviewTime).replace(' ', 'T')) - Date.parse(String(reg.applyTime).replace(' ', 'T'));
+      return Number.isFinite(diff) && diff >= 0 ? diff / 60000 : null;
+    }).filter(value => value !== null).sort((a, b) => a - b);
+    const percentile = p => waits.length ? Math.round(waits[Math.min(waits.length - 1, Math.floor(waits.length * p))]) : null;
+
+    return ok(res, '获取成功', {
+      days,
+      generatedAt: localText(),
+      funnel,
+      rates: {
+        cancelRate: allRegs.length + cancelRecords.length ? Math.round(cancelRecords.length / (allRegs.length + cancelRecords.length) * 1000) / 10 : 0,
+        waitlistPromoteRate: countOf(EVENT_TYPES.JOIN_WAITLIST) ? Math.round(countOf(EVENT_TYPES.PROMOTE) / countOf(EVENT_TYPES.JOIN_WAITLIST) * 1000) / 10 : 0,
+        attendanceRate: recorded.length ? Math.round(attended.length / recorded.length * 1000) / 10 : null,
+        seatUsage: live.reduce((sum, item) => sum + Number(item.maxParticipants || 0), 0)
+          ? Math.round(approved.length / live.reduce((sum, item) => sum + Number(item.maxParticipants || 0), 0) * 1000) / 10 : 0,
+        approveWaitMedian: percentile(0.5),
+        approveWaitP90: percentile(0.9),
+        reviewedCount: reviewedRegs.length
+      },
+      cancelReasons,
+      byType,
+      trend: Array.from(trendMap.values()),
+      recentEvents: readEvents({ limit: 12 }).list
+    });
+  }
+
+  /* ---------------- V3.0：运行事件查询 ---------------- */
+  if (p === '/api/admin/events' && req.method === 'GET') {
+    const type = String(url.searchParams.get('type') || '');
+    const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') || 50)));
+    const offset = Math.max(0, Number(url.searchParams.get('offset') || 0));
+    const from = String(url.searchParams.get('from') || '');
+    return ok(res, '获取成功', readEvents({ type, limit, offset, from }));
   }
 
   if (p === '/api/admin/users' && req.method === 'GET') {
@@ -744,24 +1152,31 @@ async function adminApi(req, res, url) {
   }
 
   if (p === '/api/admin/activities' && req.method === 'GET') {
+    settleAll();
     const keyword = String(url.searchParams.get('keyword') || '').toLowerCase();
-    let list = activities.map(item => Object.assign(activityView(item), {
-      publisher: item.publisher || '',
-      summary: activitySummary(item)
-    }));
+    let list = activities
+      .filter(item => item.archived !== true)
+      .map(item => Object.assign(activityView(item), {
+        publisher: item.publisher || '',
+        summary: activitySummary(item)
+      }));
     if (keyword) list = list.filter(item => (item.title + ' ' + item.publisher + ' ' + item.location).toLowerCase().includes(keyword));
     return ok(res, '获取成功', list);
   }
 
   const actStatusMatch = p.match(/^\/api\/admin\/activities\/(\d+)\/status$/);
   if (actStatusMatch && req.method === 'PUT') {
-    const target = activities.find(item => Number(item.id) === Number(actStatusMatch[1]));
+    const target = activities.find(item => Number(item.id) === Number(actStatusMatch[1]) && item.archived !== true);
     if (!target) return fail(res, '活动不存在', 404);
     const data = await body(req);
     const next = String(data.status || '');
     if (![ACTIVITY_STATUS.ACTIVE, ACTIVITY_STATUS.SUSPENDED].includes(next)) return fail(res, '活动状态不合法');
     target.status = next;
     writeJson(ACTIVITIES_FILE, activities);
+    logEvent(next === ACTIVITY_STATUS.SUSPENDED ? EVENT_TYPES.ACTIVITY_SUSPEND : EVENT_TYPES.ACTIVITY_RESUME, {
+      actor: user, activity: target,
+      detail: next === ACTIVITY_STATUS.SUSPENDED ? '管理员停用活动' : '管理员恢复活动'
+    });
     return ok(res, next === ACTIVITY_STATUS.SUSPENDED ? '活动已停用（学生端不再展示）' : '活动已恢复', { id: target.id, status: target.status });
   }
 
@@ -781,12 +1196,25 @@ function staticFile(res, pathname) {
 const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') return send(res, 200, 'ok', {});
   const url = new URL(req.url, 'http://localhost');
+  const startedAt = Date.now();
   try {
     if (url.pathname.startsWith('/api/admin/')) await adminApi(req, res, url);
     else if (url.pathname.startsWith('/api/')) await api(req, res, url);
     else staticFile(res, url.pathname);
   }
   catch (error) { console.error(error); fail(res, error.message || '服务器处理失败', 500); }
+  finally {
+    // V3.0：接口耗时留痕。V2.0 无任何性能数据，"数据量变大后是否变慢"只能靠猜；
+    // 这里只记录超过 100ms 的请求，避免正常请求把事件文件写爆。
+    const cost = Date.now() - startedAt;
+    if (url.pathname.startsWith('/api/') && cost >= 100) {
+      logEvent('slow_request', {
+        result: cost >= 500 ? 'slow' : 'watch',
+        detail: req.method + ' ' + url.pathname + ' 耗时 ' + cost + 'ms',
+        durationMs: cost
+      });
+    }
+  }
 });
 
 function startServer(port = PORT) {
@@ -799,7 +1227,7 @@ function startServer(port = PORT) {
       server.off('error', onError);
       const address = server.address();
       const actualPort = typeof address === 'object' && address ? address.port : port;
-      console.log('校园活动管理系统 V2.0 已启动：http://127.0.0.1:' + actualPort);
+      console.log('校园活动管理系统 ' + VERSION + ' 已启动：http://127.0.0.1:' + actualPort);
       resolve(actualPort);
     };
     server.once('error', onError);
