@@ -1,18 +1,44 @@
-校园活动管理系统 V2.0 源代码说明
+校园活动管理系统 V3.0 源代码说明
+
+版本背景
+- V3.0 在 V2.0（三角色、报名四状态、候补队列、自动递补、审核、平台监管）基础上，
+  按实验三《基于运行数据的需求演化》的要求完成了一次有依据的迭代。
+- 本次迭代的主问题：V2.0 只保存最终状态、不保存过程，导致"报名后来没来、为什么退、
+  名额是否被占住"全部无法回答，每轮改进只能依赖外部数据包。
+- 变更清单见 docs/V3-CHANGES.md，验证记录见 docs/V3-VERIFY.md。
 
 目录结构
 - electron/main.js：Electron 桌面程序启动入口
-- src/app.js：后端服务、登录、活动、报名、候补、审核和管理员接口
+- src/app.js：后端服务、登录、活动、报名、候补、审核、出席、统计与管理员接口
+- src/events.js：V3.0 新增，运行事件日志（JSONL 追加写，5MB 自动滚动）
 - public/index.html：前端入口
-- public/assets/js：前端业务逻辑
+- public/assets/js：前端业务逻辑（api / student / teacher / admin / app）
 - public/assets/css/style.css：界面样式
 - public/assets/avatars：系统内置的六种卡通头像
+- tests/v3-smoke.js：后端冒烟测试（29 项断言，可复跑）
+- tests/ui-render.js：前端渲染测试（jsdom，18 项断言，可复跑）
+- docs：V3.0 变更说明与验证记录
 - data：首次运行使用的初始示例数据，不是用户当前正在使用的数据
 
-运行时用户数据位于 Electron 的 userData/data 目录。修改、查看或提交 source 目录不会覆盖现有用户账号、活动和报名数据。
-头像偏好单独保存在运行时 userData/data/avatars.json 与 avatars 目录中，不写入 users.json 或 activities.json。
+运行时数据（Electron userData/data 目录）
+- users.json / activities.json：账号与活动（含报名、取消流水、出席状态）
+- events.jsonl：V3.0 新增，过程事件流（登录、报名、取消、审核、递补、出席、导出、慢请求等）
+- avatars.json 与 avatars 目录：头像偏好
+修改、查看或提交 source 目录不会覆盖现有用户账号、活动和报名数据。
+
+运行与验证
+1. 直接跑服务：node src/app.js（默认 http://127.0.0.1:3000）
+2. 后端测试：node tests/v3-smoke.js（使用临时数据目录，不影响 data/）
+3. 前端渲染测试：先启动服务，再执行
+   NODE_PATH=<jsdom 所在 node_modules> node tests/ui-render.js http://127.0.0.1:3000
+
+可配置项
+- PORT：服务端口
+- CAMPUS_ACTIVITY_DATA_DIR：数据目录
+- WAITLIST_CONFIRM_HOURS：递补确认时限（小时，默认 24；测试可用 0.0012 加速）
+- JWT_SECRET：令牌签名密钥
 
 构建
 1. 安装 Node.js 与 pnpm。
 2. 在 source 目录执行 pnpm install。
-3. 执行 pnpm run build:portable 生成单文件便携版。
+3. 执行 pnpm run build:portable 生成单文件便携版（产物名为 3.0.0）。
