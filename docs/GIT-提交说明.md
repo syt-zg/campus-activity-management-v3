@@ -29,6 +29,25 @@ git remote -v          # 确认地址已生效
 - 公开或私有均可，私有仓库需给评审批次访问权限，否则不算"可访问"。
 - 如果学校要求分支名为 `main`：`git branch -M main` 后再推送。
 
+### 附：没有远程仓库时的过渡方案（git bundle）
+
+交付目录里额外提供了 `source-history.bundle`（约 770 KB），
+它是**一个文件里装下完整提交历史**的 Git 包，可在任何平台导入：
+
+```bash
+# 1) 在托管平台新建空仓库后
+git clone <空仓库地址> campus-v3 && cd campus-v3
+
+# 2) 把 bundle 里的历史拉进来
+git pull ../source-history.bundle master
+
+# 3) 推上去
+git push -u origin master
+```
+
+校验完整性：`git bundle verify ../source-history.bundle` → 应显示 "records a complete history"。
+这样即使暂时没有仓库，提交历史也不会丢，之后随时可以补推。
+
 ## 三、提交历史（评审可直接核对，下表为主要节点）
 
 | 提交 | 时间 | 内容 | 规模 |
