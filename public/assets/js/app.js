@@ -80,6 +80,9 @@ async function render() {
         if (!currentUser) currentUser = await Auth.info();
         if (!currentUser) throw new Error('登录状态已失效，请重新登录');
         if (currentView === 'student-home') await renderStudentHome();
+        else if (currentView === 'student-calendar') await renderStudentCalendar();
+        else if (currentView === 'student-messages' || currentView === 'teacher-messages' || currentView === 'admin-messages') await renderMessages();
+        else if (currentView === 'teacher-insights') await renderTeacherInsights();
         else if (currentView === 'student-my-activities') await renderMyActivities();
         else if (currentView === 'qa') await renderQaPage();
         else if (currentView === 'student-profile' || currentView === 'teacher-profile' || currentView === 'admin-profile') renderProfile();
@@ -200,9 +203,9 @@ function showTeacherApplicationDialog(username, applicationPassword) {
 /* ============================== 主布局 ============================== */
 
 const MENUS = {
-    student: [['student-home', '🏠', '活动首页'], ['student-my-activities', '📋', '我的活动'], ['qa', '💬', '需求访谈问答'], ['student-profile', '👤', '个人中心']],
-    teacher: [['teacher-home', '📊', '活动管理'], ['qa', '💬', '需求访谈问答'], ['teacher-profile', '👤', '个人中心']],
-    admin: [['admin-home', '🧭', '平台概览'], ['admin-users', '👥', '用户管理'], ['admin-activities', '🗂', '活动监管'], ['admin-metrics', '📈', '运行统计'], ['admin-events', '🧾', '运行日志'], ['qa', '💬', '需求访谈问答'], ['admin-profile', '👤', '个人中心']]
+    student: [['student-home', '🏠', '活动首页'], ['student-calendar', '📅', '我的日程'], ['student-my-activities', '📋', '我的活动'], ['student-messages', '🔔', '消息中心'], ['qa', '💬', '需求访谈问答'], ['student-profile', '👤', '个人中心']],
+    teacher: [['teacher-home', '📊', '活动管理'], ['teacher-insights', '📈', '活动效果'], ['teacher-messages', '🔔', '消息中心'], ['qa', '💬', '需求访谈问答'], ['teacher-profile', '👤', '个人中心']],
+    admin: [['admin-home', '🧭', '平台概览'], ['admin-users', '👥', '用户管理'], ['admin-activities', '🗂', '活动监管'], ['admin-metrics', '📈', '运行统计'], ['admin-events', '🧾', '运行日志'], ['admin-messages', '🔔', '消息中心'], ['qa', '💬', '需求访谈问答'], ['admin-profile', '👤', '个人中心']]
 };
 const ROLE_LABEL = { student: '学生端', teacher: '教师端', admin: '管理端' };
 const ROLE_TAG_CLASS = { student: 'status-joined', teacher: 'status-pending', admin: 'status-admin' };
@@ -245,10 +248,16 @@ function signupButton(activity) {
 
 async function renderStudentHome() {
     const activities = (await Student.getActivities({ page: 1, size: 100 })).map(normalizeActivity);
-    const content = '<div class="page-header"><h2 class="page-title">活动首页</h2><p class="page-desc">浏览并参与您感兴趣的校园活动，名额已满的活动可以加入候补队列</p></div><div class="filter-bar"><div class="search-box"><span class="search-icon">🔍</span><input type="text" class="input-field" id="search-keyword" placeholder="搜索活动标题、地点..."></div><select class="input-field filter-select" id="filter-type"><option value="">全部类型</option>' + ACTIVITY_TYPES.map(type => '<option value="' + type + '">' + type + '</option>').join('') + '</select><select class="input-field filter-select" id="filter-status"><option value="">全部状态</option>' + ACTIVITY_STATUSES.map(status => '<option value="' + status + '">' + status + '</option>').join('') + '</select><button class="btn btn-secondary btn-sm" id="reset-filter">重置</button></div><div class="activity-grid activity-timeline" id="activity-list">' + renderActivityCards(activities) + '</div>';
+    const content = '<div class="page-header"><h2 class="page-title">活动首页</h2><p class="page-desc">浏览并参与您感兴趣的校园活动，名额已满的活动可以加入候补队列</p></div><div class="filter-bar"><div class="search-box"><span class="search-icon">🔍</span><input type="text" class="input-field" id="search-keyword" placeholder="搜索活动标题、地点..."></div><select class="input-field filter-select" id="filter-type"><option value="">全部类型</option>' + ACTIVITY_TYPES.map(type => '<option value="' + type + '">' + type + '</option>').join('') + '</select><select class="input-field filter-select" id="filter-status"><option value="">全部状态</option>' + ACTIVITY_STATUSES.map(status => '<option value="' + status + '">' + status + '</option>').join('') + '</select><select class="input-field filter-select" id="filter-weekday"><option value="">全部星期</option><option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="7">周日</option></select><select class="input-field filter-select" id="filter-slot"><option value="">全部时段</option><option value="morning">上午</option><option value="afternoon">下午</option><option value="evening">晚间</option><option value="night">深夜</option></select><button class="btn btn-secondary btn-sm" id="reset-filter">重置</button></div><div class="activity-grid activity-timeline" id="activity-list">' + renderActivityCards(activities) + '</div>';
     appRoot().innerHTML = layoutShell('student', 'student-home', content); bindLayoutEvents();
     const search = async () => {
-        const params = { page: 1, size: 100, keyword: document.getElementById('search-keyword').value, type: document.getElementById('filter-type').value };
+        const params = {
+            page: 1, size: 100,
+            keyword: document.getElementById('search-keyword').value,
+            type: document.getElementById('filter-type').value,
+            weekday: document.getElementById('filter-weekday').value,
+            slot: document.getElementById('filter-slot').value
+        };
         try {
             const list = (await Student.getActivities(params)).map(normalizeActivity);
             const status = document.getElementById('filter-status').value;
@@ -256,8 +265,14 @@ async function renderStudentHome() {
             bindCardEvents();
         } catch (error) { showToast(error.message, 'error'); }
     };
-    document.getElementById('search-keyword').addEventListener('input', search); document.getElementById('filter-type').addEventListener('change', search); document.getElementById('filter-status').addEventListener('change', search);
-    document.getElementById('reset-filter').addEventListener('click', () => { document.getElementById('search-keyword').value = ''; document.getElementById('filter-type').value = ''; document.getElementById('filter-status').value = ''; search(); });
+    ['search-keyword', 'filter-type', 'filter-status', 'filter-weekday', 'filter-slot'].forEach(id => {
+        const element = document.getElementById(id);
+        element.addEventListener(id === 'search-keyword' ? 'input' : 'change', search);
+    });
+    document.getElementById('reset-filter').addEventListener('click', () => {
+        ['search-keyword', 'filter-type', 'filter-status', 'filter-weekday', 'filter-slot'].forEach(id => { document.getElementById(id).value = ''; });
+        search();
+    });
     bindCardEvents();
 }
 
@@ -336,7 +351,13 @@ async function showSignupConfirm(activityId) {
             if (button.disabled) return;
             button.disabled = true; button.textContent = '提交中...';
             const result = await Student.signup(activityId, requestId); close();
-            if (!result.success) return showToast(result.message, 'error');
+            if (!result.success) {
+                // V3.0 能力扩展：时间冲突不是直接拒绝，而是把冲突详情交回确认
+                if (result.code === 409 && result.data && Array.isArray(result.data.conflicts) && result.data.conflicts.length) {
+                    return showConflictConfirm(activityId, requestId, result.data.conflicts);
+                }
+                return showToast(result.message, 'error');
+            }
             const reg = result.data?.registration;
             showToast(reg?.status === '待审核' ? '报名申请已提交，等待教师审核'
                 : reg?.status === '候补中' ? '活动名额已满，已加入候补队列（第 ' + reg.position + ' 位）'
@@ -344,6 +365,41 @@ async function showSignupConfirm(activityId) {
             render();
         });
     } catch (error) { showToast(error.message, 'error'); }
+}
+
+/**
+ * 时间冲突确认（V3.0 能力扩展）
+ * 服务端拦下冲突报名后，把冲突活动与重叠时长交回前端由用户判断，
+ * 确认后以同一 requestId 带 force 重提，不会重复占用名额。
+ */
+function showConflictConfirm(activityId, requestId, conflicts) {
+    const rows = conflicts.map(item =>
+        '<li style="margin-bottom:8px"><strong>' + escapeHtml(item.title) + '</strong><br>' +
+        '<span class="hint-line">' + escapeHtml(item.startTime) + ' ~ ' + escapeHtml(String(item.endTime).split(' ')[1] || '') +
+        '，与本活动重叠 ' + item.overlapMinutes + ' 分钟</span></li>'
+    ).join('');
+    const modal = document.createElement('div'); modal.className = 'modal-mask';
+    modal.innerHTML = '<div class="modal">' +
+        '<div class="modal-header"><h3 class="modal-title">时间冲突提醒</h3><span class="modal-close">✕</span></div>' +
+        '<div class="modal-body"><p>该活动与您已报名的以下活动时间重叠：</p>' +
+        '<ul style="margin:10px 0 10px 20px;font-size:13px;line-height:1.6">' + rows + '</ul>' +
+        '<p class="hint-line">同时参加可能导致其中一场无法完整参与，确认仍要报名吗？</p></div>' +
+        '<div class="modal-footer"><button class="btn btn-secondary modal-cancel">返回</button>' +
+        '<button class="btn btn-primary modal-confirm">确认仍要报名</button></div></div>';
+    document.body.appendChild(modal);
+    const close = () => modal.remove();
+    modal.querySelector('.modal-close').addEventListener('click', close);
+    modal.querySelector('.modal-cancel').addEventListener('click', close);
+    modal.querySelector('.modal-confirm').addEventListener('click', async event => {
+        const button = event.currentTarget;
+        if (button.disabled) return;
+        button.disabled = true; button.textContent = '提交中...';
+        const result = await Student.signup(activityId, requestId, true); close();
+        if (!result.success) return showToast(result.message, 'error');
+        const reg = result.data?.registration;
+        showToast(reg?.status === '候补中' ? '已确认时间冲突，加入候补（第 ' + reg.position + ' 位）' : '已确认时间冲突并完成报名', 'success');
+        render();
+    });
 }
 
 async function renderMyActivities() {
@@ -391,6 +447,110 @@ async function showCancelConfirm(activityId) {
 }
 
 /* ============================== 个人中心 ============================== */
+
+/* ==================== V3.0 能力扩展页面：日程 / 消息 / 效果 ==================== */
+
+let calendarWeek = '';
+
+/** 个人周历：按周聚合本人报名，并标出同日时间重叠 */
+async function renderStudentCalendar() {
+    const data = await Api.schedule(calendarWeek);
+    calendarWeek = data.weekStart;
+    const names = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    const conflictIds = new Set();
+    for (const item of data.conflicts || []) { conflictIds.add(item.a); conflictIds.add(item.b); }
+
+    const columns = data.days.map(day => {
+        const body = day.items.length ? day.items.map(item => {
+            const conflicted = conflictIds.has(item.id);
+            return '<div style="border-left:3px solid ' + (conflicted ? '#A32D2D' : '#185FA5') + ';background:#f7f7f8;border-radius:6px;padding:6px 8px;margin-bottom:6px">' +
+                '<div style="font-size:12px;color:#666">' + escapeHtml(String(item.startTime).slice(11, 16)) + ' - ' + escapeHtml(String(item.endTime).slice(11, 16)) + '</div>' +
+                '<div style="font-size:13px;font-weight:500;margin:2px 0;line-height:1.35">' + escapeHtml(item.title) + '</div>' +
+                '<div style="font-size:12px;color:#666">' + escapeHtml(item.location || '') + '</div>' +
+                (conflicted ? '<div style="font-size:12px;color:#A32D2D;margin-top:2px">时间重叠</div>' : '') +
+                (item.status === '候补中' ? '<div style="font-size:12px;color:#854F0B;margin-top:2px">候补第 ' + item.position + ' 位</div>' : '') +
+                '</div>';
+        }).join('') : '<div style="font-size:12px;color:#bbb;padding:10px 0">无安排</div>';
+        return '<div style="min-width:0"><div style="font-size:12px;margin-bottom:8px;line-height:1.5"><strong>' + names[day.weekday - 1] + '</strong><br><span style="color:#666">' + day.date.slice(5) + '</span></div>' + body + '</div>';
+    }).join('');
+
+    const conflictBanner = (data.conflicts || []).length
+        ? '<div style="background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#A32D2D">本周有 ' + data.conflicts.length + ' 组时间重叠：' +
+        data.conflicts.map(conflict => escapeHtml(conflict.aTitle) + ' 与 ' + escapeHtml(conflict.bTitle) + ' 重叠 ' + conflict.overlapMinutes + ' 分钟（' + conflict.date.slice(5) + '）').join('；') + '</div>'
+        : '';
+
+    const total = data.days.reduce((sum, day) => sum + day.items.length, 0);
+    const content = '<div class="page-header"><h2 class="page-title">我的日程</h2><p class="page-desc">' + data.weekStart + ' 至 ' + data.weekEnd + '，共 ' + total + ' 项安排</p></div>' +
+        '<div style="display:flex;gap:8px;margin-bottom:16px"><button class="btn btn-secondary btn-sm" id="week-prev">上一周</button><button class="btn btn-secondary btn-sm" id="week-next">下一周</button></div>' +
+        conflictBanner +
+        '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:start">' + columns + '</div>';
+    appRoot().innerHTML = layoutShell('student', 'student-calendar', content);
+    bindLayoutEvents();
+    const shift = days => {
+        const base = new Date(calendarWeek + 'T00:00:00');
+        base.setDate(base.getDate() + days);
+        calendarWeek = base.getFullYear() + '-' + String(base.getMonth() + 1).padStart(2, '0') + '-' + String(base.getDate()).padStart(2, '0');
+        render();
+    };
+    document.getElementById('week-prev').addEventListener('click', () => shift(-7));
+    document.getElementById('week-next').addEventListener('click', () => shift(7));
+}
+
+/** 消息中心：系统主动产生的通知，按未读优先展示 */
+async function renderMessages() {
+    const data = await Api.messages();
+    const list = data.list || [];
+    const role = currentUser.role;
+    const menuKey = role === 'student' ? 'student-messages' : role === 'teacher' ? 'teacher-messages' : 'admin-messages';
+    const palette = { warn: '#A32D2D', action: '#854F0B', info: '#185FA5' };
+    const label = { warn: '提醒', action: '待处理', info: '通知' };
+    const cards = list.length ? list.map(message => {
+        const tone = palette[message.type] || palette.info;
+        return '<div class="activity-card" style="margin-bottom:10px;' + (message.read ? 'opacity:.6' : '') + '">' +
+            '<div class="card-header"><div class="card-title"><span>' + escapeHtml(message.title) + '</span>' +
+            '<span class="status-tag" style="color:' + tone + ';border-color:' + tone + '">' + (label[message.type] || '通知') + '</span></div>' +
+            '<span class="cell-sub">' + escapeHtml(message.createTime) + '</span></div>' +
+            '<div class="card-body"><p class="card-desc">' + escapeHtml(message.content) + '</p></div></div>';
+    }).join('') : '<div class="empty-state"><div class="empty-icon">📭</div><div>暂无消息</div></div>';
+
+    const content = '<div class="page-header"><h2 class="page-title">消息中心</h2><p class="page-desc">共 ' + list.length + ' 条，未读 ' + data.unread + ' 条。候补结果、活动临近等节点由系统主动通知，无需反复查询。</p></div>' +
+        (data.unread ? '<button class="btn btn-secondary btn-sm" id="mark-all" style="margin-bottom:16px">全部标记为已读</button>' : '') + cards;
+    appRoot().innerHTML = layoutShell(role, menuKey, content);
+    bindLayoutEvents();
+    document.getElementById('mark-all')?.addEventListener('click', async () => {
+        await Api.markMessagesRead(0);
+        showToast('已全部标记为已读', 'success');
+        render();
+    });
+}
+
+/** 教师活动效果：每个活动的供给判断 */
+async function renderTeacherInsights() {
+    const data = await Api.teacherInsights();
+    const summary = data.summary;
+    const pct = value => (value * 100).toFixed(0) + '%';
+    const cards = data.rows.length ? data.rows.map(row => {
+        const tone = row.advice === '建议扩容' ? '#A32D2D' : row.advice === '建议调整时段' ? '#854F0B' : '#1D9E75';
+        return '<div class="activity-card" style="margin-bottom:12px">' +
+            '<div class="card-header"><div class="card-title"><span>' + escapeHtml(row.title) + '</span>' +
+            '<span class="status-tag" style="color:' + tone + ';border-color:' + tone + '">' + row.advice + '</span></div>' +
+            '<span class="cell-sub">' + escapeHtml(row.startTime) + '</span></div>' +
+            '<div class="card-body">' +
+            '<div class="card-info"><span>名额 ' + row.capacity + '，正式 ' + row.approved + '，候补 ' + row.waiting + '，取消 ' + row.cancelled + '，出席 ' + row.attended + '</span></div>' +
+            '<div class="card-info"><span>报名率 ' + pct(row.utilization) + '，候补压力 ' + row.waitPressure.toFixed(1) + ' 倍，出席率 ' + pct(row.attendRate) + '，取消率 ' + pct(row.cancelRate) + '</span></div>' +
+            '<p class="card-desc" style="color:' + tone + '">' + escapeHtml(row.adviceReason) + '</p></div></div>';
+    }).join('') : '<div class="empty-state"><div class="empty-icon">📭</div><div>您还没有发布活动</div></div>';
+
+    const content = '<div class="page-header"><h2 class="page-title">活动效果</h2><p class="page-desc">基于报名、候补、出席与取消数据，给出每个活动的供给判断</p></div>' +
+        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px">' +
+        metricCard('活动数', summary.activityCount, ' 个', '#185FA5') +
+        metricCard('平均报名率', pct(summary.avgUtilization), '', '#1D9E75') +
+        metricCard('建议扩容', summary.expandCount, ' 个', '#A32D2D', '候补达名额 2 倍以上') +
+        metricCard('建议调整时段', summary.shiftCount, ' 个', '#854F0B', '工作日白天利用率偏低') +
+        '</div>' + cards;
+    appRoot().innerHTML = layoutShell('teacher', 'teacher-insights', content);
+    bindLayoutEvents();
+}
 
 function renderProfile() {
     const role = currentUser.role;

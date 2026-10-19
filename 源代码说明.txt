@@ -11,21 +11,23 @@
 - electron/main.js：Electron 桌面程序启动入口
 - src/app.js：后端服务、登录、活动、报名、候补、审核、出席、统计与管理员接口
 - src/events.js：V3.0 新增，运行事件日志（JSONL 追加写，5MB 自动滚动）
+- src/rules.js：V3.0 新增，规则引擎（候补终局、临期提示、开始提醒、供给不足建议）
 - public/index.html：前端入口
 - public/assets/js：前端业务逻辑（api / student / teacher / admin / app）
 - public/assets/css/style.css：界面样式
 - public/assets/avatars：系统内置的六种卡通头像
-- tests/v3-smoke.js：后端冒烟测试（37 项断言，可复跑）
-- tests/ui-render.js：前端渲染测试（jsdom，20 项断言，可复跑）
+- tests/v3-smoke.js：后端冒烟测试（51 项断言，可复跑）
+- tests/ui-render.js：前端渲染测试（jsdom，26 项断言，可复跑）
 - tests/perf-compare.js：写入合并前后对比（同负载对比同步写与合并写）
 - analysis/：模拟数据包的数据发现脚本、报告与字段映射表（只读，不参与运行）
-- docs：V3-CHANGES（变更清单）、V3-VERIFY（验证记录）、V3-AI-USAGE（AI 使用与工程过程）、GIT-提交说明
+- docs：V3-CHANGES（变更清单）、V3-VERIFY（验证记录）、V3-AI-USAGE（AI 使用与工程过程）、V3-能力扩展设计（第二轮能力扩展的设计依据与方案）、GIT-提交说明
 - README.md：总入口，含运行说明、默认账号、验证命令与文档索引
 - data：首次运行使用的初始示例数据，不是用户当前正在使用的数据
 
 运行时数据（Electron userData/data 目录）
 - users.json / activities.json：账号与活动（含报名、取消流水、出席状态）
 - events.jsonl：V3.0 新增，过程事件流（登录、报名、取消、审核、递补、出席、导出、慢请求等）
+- messages.json：V3.0 新增，系统主动通知（消息中心，含去重键与已读状态）
 - avatars.json 与 avatars 目录：头像偏好
 修改、查看或提交 source 目录不会覆盖现有用户账号、活动和报名数据。
 
@@ -40,9 +42,14 @@
 - CAMPUS_ACTIVITY_DATA_DIR：数据目录
 - WAITLIST_CONFIRM_HOURS：递补确认时限（小时，默认 24；测试可用 0.0012 加速）
 - WRITE_COALESCE_MS：写入合并窗口（毫秒，默认 50；设为 0 退回同步写，用于对照）
+- RULES_HEARTBEAT_MS：规则引擎心跳间隔（毫秒，默认 30000）
+- RULE_THROTTLE_MS：规则执行的节流窗口（毫秒，默认 15000；测试设为 0 可立即触发）
+- RULE_REMINDER_HOURS：活动开始前提醒的提前量（小时，默认 24）
+- RULE_WAITLIST_NEAR_HOURS：候补临期提示的提前量（小时，默认 12）
+- RULE_SHORTAGE_RATIO：判定供给不足的候补/名额倍数（默认 2）
 - JWT_SECRET：令牌签名密钥
 
 构建
-1. 安装 Node.js 与 pnpm。
-2. 在 source 目录执行 pnpm install。
-3. 执行 pnpm run build:portable 生成单文件便携版（产物名为 3.0.0）。
+1. 安装 Node.js（本项目在 Node 22 上验证）。
+2. 在 source 目录执行 npm install。
+3. 便携版：npm run build:portable；安装版：npm run build:installer。

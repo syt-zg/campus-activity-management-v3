@@ -62,8 +62,8 @@ V2.0 的业务主干是完整的（三角色、报名四状态、候补队列、
 | 文件 | 行数量级 | 作用 |
 |------|---------|------|
 | `src/events.js` | ~130 | 事件日志：`logEvent` / `readEvents` / `allEvents` / `localText` / `EVENT_TYPES`，JSONL 追加写，超 5 MB 自动滚动 |
-| `tests/v3-smoke.js` | ~180 | 后端冒烟测试：29 项断言，覆盖资格、候补、递补、超时、出席、导出、统计、日志、回归 |
-| `tests/ui-render.js` | ~150 | 前端渲染测试（jsdom）：18 项断言，逐视图检查是否抛异常、关键元素是否存在 |
+| `tests/v3-smoke.js` | ~430 | 后端冒烟测试：51 项断言，覆盖资格、候补、递补、超时、出席、导出、统计、日志、冲突检测、规则推送、教师建议、回归 |
+| `tests/ui-render.js` | ~230 | 前端渲染测试（jsdom）：26 项断言，逐视图检查是否抛异常、关键元素是否存在 |
 
 ### 后端 `src/app.js` 新增函数
 
@@ -142,10 +142,10 @@ registration
 ## 七、如何验证
 
 ```bash
-# 1. 后端冒烟（29 项）
+# 1. 后端冒烟（51 项）
 node tests/v3-smoke.js
 
-# 2. 前端渲染（18 项，需先启动服务）
+# 2. 前端渲染（26 项，需先启动服务）
 node src/app.js            # 另开终端
 NODE_PATH=<jsdom 所在 node_modules> node tests/ui-render.js http://127.0.0.1:3000
 ```
@@ -159,7 +159,7 @@ NODE_PATH=<jsdom 所在 node_modules> node tests/ui-render.js http://127.0.0.1:3
 | 分析数据发现问题 | 管理员"运行统计"提供 6 类口径；拿到模拟数据包后先对齐字段映射，再决定下一轮 |
 | 自主确定需求与工程意图 | 见第一节；选择"过程不可观测"作为主问题，而不是堆功能 |
 | 在已有项目上完成迭代 | 全部改动在 V2.0 代码上完成，保留原有业务主干；Git 分两次提交（基线 + 功能） |
-| 验证调整是否合理 | `tests/v3-smoke.js` 29 项 + `tests/ui-render.js` 18 项，可复跑 |
+| 验证调整是否合理 | `tests/v3-smoke.js` 51 项 + `tests/ui-render.js` 26 项，可复跑 |
 | AI 工具使用 | 改动过程与判断依据记录在本文档与提交信息中，关键结果用测试脚本核对 |
 
 ---
@@ -217,3 +217,79 @@ activity
 ```
 
 事件类型新增：`join_duplicate`（重复提交去重）、`join_too_early`（未到开放时间）。
+
+## 十、能力扩展（第三轮）
+
+前两轮解决"看得见"与"稳得住"。这一轮按活动生命周期重新检视能力分布，
+发现两个阶段（评价、调控）基本空白，且时间维度全线缺失、系统从不主动做任何事。
+完整依据见 [`V3-能力扩展设计.md`](V3-能力扩展设计.md)。
+
+### 10.1 数据依据（三组证据互证）
+
+| 证据源 | 关键事实 |
+|---|---|
+| 反馈文本（112 条，26 个模板） | 状态变化无感知 33 条（29.5%）居首；报名失败原因不明 19 条；筛选困难 12 条 |
+| 行为埋点（11027 条 / 1416 session） | 进入列表的 session 100% 都会打开详情；状态页被访问 293 次 |
+| 业务记录（报名 2878 / 候补 1006） | 876 人候补仅 130 人转正，**746 人（85.2%）无终态**；**39.7% 学生存在时间重叠报名**；5 个满员活动合计 701 人排队而 7 个活动空 92 位 |
+
+### 10.2 新增能力（3 个维度）
+
+**① 时间能力——从"活动视角"到"个人时间视角"**
+
+- `GET /api/schedule?weekStart=` 个人周历：按周聚合本人报名，标出同日时间重叠组
+- 报名接口内联冲突检测：与已报活动重叠时返回 409 与冲突清单（活动、重叠分钟数），
+  前端展示后可由用户确认并带 `force` 重提；拒绝路径不写入幂等缓存
+- 活动列表新增 `weekday`（1=周一 … 7=周日）与 `slot`（morning/afternoon/evening/night）筛选
+
+**② 系统主动性——从"请求驱动"到"事件与时间驱动"**
+
+- `src/rules.js`：规则以 `match / emit` 描述，产出带 `dedupeKey` 的消息，纯计算便于单测
+- 四条规则：`waitlist_final`（候补终局）、`waitlist_near`（临期排位）、
+  `activity_reminder`（开始提醒）、`capacity_shortage`（供给不足建议）
+- 触发路径：30 秒心跳 + 请求惰性触发，两路共用节流窗口；定时器 `unref()`
+  不阻塞进程退出。桌面端可能休眠，因此不以定时器作为唯一路径
+- `GET /api/messages`、`GET /api/messages/unread`、`POST /api/messages/read`
+- 前端新增"消息中心"，三个角色均可见
+
+**③ 供给侧分析——教师首次获得效果反馈**
+
+- `GET /api/teacher/insights`：逐活动输出报名率、候补压力、出席率、取消率，
+  并给出"建议扩容 / 建议调整时段 / 维持"的判断与理由
+- 前端新增"活动效果"页
+
+### 10.3 代码清单
+
+| 类型 | 内容 |
+|---|---|
+| 新增文件 | `src/rules.js`（规则引擎）、`docs/V3-能力扩展设计.md`（设计依据） |
+| 后端新增函数 | `pushMessage`、`runRules`、`userMessages`、`markMessagesRead`、`weekdayOf`、`slotOf`、`myActiveActivities`、`conflictsWithSchedule`、`scheduleOf`、`teacherInsights`、`startHeartbeat`、`stopHeartbeat` |
+| 后端修改 | `fail()` 增加 `data` 参数以返回结构化冲突；列表接口增加星期/时段过滤；报名接口插入冲突检测；`startServer` / `stopServer` 接入心跳 |
+| 前端新增 | `renderStudentCalendar`、`renderMessages`、`renderTeacherInsights`、`showConflictConfirm`；菜单增加"我的日程""消息中心""活动效果"；首页筛选增加星期与时段 |
+| 接口封装 | `Api.messages`、`Api.markMessagesRead`、`Api.unreadCount`、`Api.schedule`、`Api.teacherInsights`；请求失败时把 `data` 挂到 error 上 |
+
+### 10.4 数据模型补充
+
+```text
+messages（新增文件 messages.json）
+  id / userId / role / type(info|warn|action) / title / content
+  activityId / ruleId / dedupeKey / read / createTime
+  —— 单用户上限 200 条，超出优先淘汰已读旧记录
+
+事件类型新增：join_conflict（冲突拦截）、join_conflict_forced（确认后继续）、
+              message_push（规则推送）、rule_run（规则执行）
+```
+
+### 10.5 本轮明确不做
+
+- **个性化推荐**：402 名报过两个以上活动的学生中仅 6 人（1.5%）集中在单一类型，
+  无稳定兴趣画像基础；应做筛选而非推荐。
+- **移动端适配**：行为占 70.9%，但属整套界面改造，与"能力扩展"主线不同。
+- **活动后评价闭环**：需要独立的时间窗口与评价数据表，留待下一轮。
+
+### 10.6 验证
+
+后端断言由 37 项增至 51 项，前端渲染由 20 项增至 26 项，全部通过。
+新增覆盖：冲突拦截与确认后重提、周历七天结构与重叠识别、星期/时段筛选一致性、
+候补终局消息生成、重复扫描不重复推送、供给不足送达管理员、消息已读、
+教师建议分类（建议扩容 / 建议调整时段）、三个新页面渲染无异常。
+实际输出见 [`V3-VERIFY.md`](V3-VERIFY.md)。

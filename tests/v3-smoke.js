@@ -16,6 +16,8 @@ const path = require('path');
 const DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'campus-v3-test-'));
 process.env.CAMPUS_ACTIVITY_DATA_DIR = DATA_DIR;
 process.env.WAITLIST_CONFIRM_HOURS = '0.0012';  // 约 4.3 秒，避免等真实的 24 小时
+process.env.RULE_THROTTLE_MS = '0';             // 规则引擎不节流，保证每次请求都能立即触发
+process.env.RULE_SHORTAGE_RATIO = '1';          // 候补达到名额即判定供给不足，便于构造用例
 process.env.JWT_SECRET = 'test-secret';
 
 const { startServer, stopServer } = require('../src/app');
@@ -212,6 +214,108 @@ function makeClient(base) {
   check('未到开放时间拒绝报名', early.code !== 200 && /开放/.test(early.msg), early.msg);
   const openDetail = await call('/api/activity/' + staggered.data.id, { token: studentAToken });
   check('活动详情带开放状态', openDetail.data.signupOpen === false, 'signupOpen=' + openDetail.data.signupOpen);
+
+  /* ---------- 11. 时间能力：冲突检测 / 周历 / 时间筛选 ---------- */
+  const slotA = await call('/api/activity', {
+    method: 'POST', token: teacherToken,
+    body: {
+      title: '时间冲突活动A', type: '讲座培训', content: '冲突检测用例A', place: 'C101',
+      start_time: '2031-03-05 09:00', end_time: '2031-03-05 11:00', max_num: 20, require_review: false
+    }
+  });
+  const slotB = await call('/api/activity', {
+    method: 'POST', token: teacherToken,
+    body: {
+      title: '时间冲突活动B', type: '讲座培训', content: '冲突检测用例B', place: 'C102',
+      start_time: '2031-03-05 10:00', end_time: '2031-03-05 12:00', max_num: 20, require_review: false
+    }
+  });
+  const joinSlotA = await call('/api/activity/' + slotA.data.id + '/join', { method: 'POST', token: studentAToken, body: { requestId: 'slot-a-' + Date.now() } });
+  check('无时间冲突的活动可正常报名', joinSlotA.code === 200, joinSlotA.msg);
+
+  const joinSlotB = await call('/api/activity/' + slotB.data.id + '/join', { method: 'POST', token: studentAToken, body: { requestId: 'slot-b-' + Date.now() } });
+  const conflictList = (joinSlotB.data && joinSlotB.data.conflicts) || [];
+  check('时间重叠的报名被拦截', joinSlotB.code === 409 && conflictList.length === 1,
+    joinSlotB.msg + (conflictList.length ? '（重叠 ' + conflictList[0].overlapMinutes + ' 分钟）' : ''));
+
+  const joinForced = await call('/api/activity/' + slotB.data.id + '/join', { method: 'POST', token: studentAToken, body: { requestId: 'slot-bf-' + Date.now(), force: true } });
+  check('确认冲突后可继续报名', joinForced.code === 200, joinForced.msg);
+
+  const schedule = await call('/api/schedule?weekStart=2031-03-03', { token: studentAToken });
+  check('周历返回七天结构', schedule.code === 200 && schedule.data.days.length === 7,
+    schedule.data ? schedule.data.weekStart + ' ~ ' + schedule.data.weekEnd : '');
+  const scheduleConflicts = (schedule.data && schedule.data.conflicts) || [];
+  check('周历识别出时间重叠', scheduleConflicts.length >= 1,
+    scheduleConflicts.map(item => item.aTitle + ' / ' + item.bTitle + ' 重叠 ' + item.overlapMinutes + ' 分钟').join('；'));
+
+  const weekdayFilter = await call('/api/activity/list?weekday=3', { token: studentAToken });
+  const weekdayOk = (weekdayFilter.data.list || []).every(item => new Date(String(item.startTime).replace(' ', 'T')).getDay() === 3);
+  check('按星期筛选结果一致', weekdayFilter.code === 200 && weekdayOk, '命中 ' + (weekdayFilter.data.list || []).length + ' 条');
+
+  const slotMorning = await call('/api/activity/list?slot=morning', { token: studentAToken });
+  const slotOk = (slotMorning.data.list || []).every(item => {
+    const hour = new Date(String(item.startTime).replace(' ', 'T')).getHours();
+    return hour >= 6 && hour < 12;
+  });
+  check('按时段筛选结果一致', slotMorning.code === 200 && slotOk, '命中 ' + (slotMorning.data.list || []).length + ' 条');
+
+  /* ---------- 12. 主动性：规则触发、幂等与消息中心 ---------- */
+  const ruleAct = await call('/api/activity', {
+    method: 'POST', token: teacherToken,
+    body: {
+      title: '规则触发活动', type: '讲座培训', content: '规则用例', place: 'D101',
+      start_time: '2031-04-10 09:00', end_time: '2031-04-10 11:00', max_num: 1, require_review: false
+    }
+  });
+  await call('/api/activity/' + ruleAct.data.id + '/join', { method: 'POST', token: studentAToken, body: { requestId: 'rule-a-' + Date.now() } });
+  await call('/api/activity/' + ruleAct.data.id + '/join', { method: 'POST', token: studentBToken, body: { requestId: 'rule-b-' + Date.now() } });
+  // 报名完成后把活动推到过去，构造"活动已开始但候补者仍无结论"的场景
+  await call('/api/activity/' + ruleAct.data.id, {
+    method: 'PUT', token: teacherToken,
+    body: {
+      title: '规则触发活动', type: '讲座培训', content: '规则用例', place: 'D101',
+      start_time: '2020-01-01 09:00', end_time: '2020-01-01 11:00', max_num: 1
+    }
+  });
+
+  const msgB = await call('/api/messages', { token: studentBToken });
+  const finalMessages = (msgB.data.list || []).filter(message => message.ruleId === 'waitlist_final');
+  check('候补终局主动通知候补者', finalMessages.length === 1, finalMessages.length ? finalMessages[0].title : '未触发');
+
+  const msgBAgain = await call('/api/messages', { token: studentBToken });
+  const finalAgain = (msgBAgain.data.list || []).filter(message => message.ruleId === 'waitlist_final');
+  check('重复扫描不重复推送', finalAgain.length === 1, '仍为 ' + finalAgain.length + ' 条');
+
+  const msgAdmin = await call('/api/messages', { token: adminToken });
+  const shortage = (msgAdmin.data.list || []).filter(message => message.ruleId === 'capacity_shortage');
+  check('供给不足建议送达管理员', shortage.length >= 1, '共 ' + shortage.length + ' 条');
+
+  const readAll = await call('/api/messages/read', { method: 'POST', token: studentBToken, body: {} });
+  check('消息可标记为已读', readAll.code === 200 && readAll.data.unread === 0, '剩余未读 ' + readAll.data.unread);
+
+  /* ---------- 13. 教师活动效果分析 ---------- */
+  const insights = await call('/api/teacher/insights', { token: teacherToken });
+  check('教师活动效果接口正常', insights.code === 200 && Array.isArray(insights.data.rows), (insights.data.rows || []).length + ' 个活动');
+  const advices = (insights.data.rows || []).map(row => row.advice);
+  check('每个活动都给出供给判断', advices.length > 0 && advices.every(value => ['建议扩容', '建议调整时段', '维持'].includes(value)), advices.slice(0, 4).join(' / '));
+
+  const idleDay = (() => {
+    const cursor = new Date();
+    cursor.setDate(cursor.getDate() + 40);
+    while (cursor.getDay() === 0 || cursor.getDay() === 6) cursor.setDate(cursor.getDate() + 1);
+    return cursor.getFullYear() + '-' + String(cursor.getMonth() + 1).padStart(2, '0') + '-' + String(cursor.getDate()).padStart(2, '0');
+  })();
+  const idleAct = await call('/api/activity', {
+    method: 'POST', token: teacherToken,
+    body: {
+      title: '低利用率活动', type: '讲座培训', content: '建议用例', place: 'E101',
+      start_time: idleDay + ' 10:00', end_time: idleDay + ' 12:00', max_num: 50, require_review: false
+    }
+  });
+  const insightsAgain = await call('/api/teacher/insights', { token: teacherToken });
+  const idleRow = (insightsAgain.data.rows || []).find(row => Number(row.id) === Number(idleAct.data.id));
+  check('低利用率活动给出调整时段建议', Boolean(idleRow) && idleRow.advice === '建议调整时段',
+    idleRow ? idleRow.advice + '（' + idleRow.adviceReason + '）' : '未找到该活动');
 
   /* ---------- 10. 回归：原有主流程仍可用 ---------- */
   const myJoin = await call('/api/activity/myjoin', { token: studentAToken });

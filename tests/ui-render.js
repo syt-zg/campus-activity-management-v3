@@ -86,6 +86,21 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     await wait(300);
     check('我的活动页渲染无异常', errors.length === 0, errors.join(' | '));
 
+    // V3.0 能力扩展：个人周历
+    await win.__boot.navigate('student-calendar');
+    await wait(450);
+    const calendarHtml = win.document.body.innerHTML;
+    check('个人日程页渲染无异常', errors.length === 0, errors.join(' | '));
+    check('日程页按七天排布', /我的日程/.test(calendarHtml) && (calendarHtml.match(/周一|周二|周三|周四|周五|周六|周日/g) || []).length >= 7,
+      '星期标题 ' + (calendarHtml.match(/周[一二三四五六日]/g) || []).length + ' 个');
+
+    // V3.0 能力扩展：消息中心
+    await win.__boot.navigate('student-messages');
+    await wait(450);
+    const messageHtml = win.document.body.innerHTML;
+    check('消息中心渲染无异常', errors.length === 0, errors.join(' | '));
+    check('消息中心显示未读统计', /消息中心/.test(messageHtml) && /未读/.test(messageHtml));
+
     // 取消报名弹窗需要选择原因
     const cancelButton = win.document.querySelector('.btn-cancel');
     if (cancelButton) {
@@ -105,13 +120,26 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     await wait(500);
     check('教师端首页渲染无异常', errors.length === 0, errors.join(' | '));
 
+    // V3.0 能力扩展：教师活动效果
+    await win.__boot.navigate('teacher-insights');
+    await wait(500);
+    const insightHtml = win.document.body.innerHTML;
+    check('教师活动效果页渲染无异常', errors.length === 0, errors.join(' | '));
+    check('活动效果页给出供给建议', /建议扩容|建议调整时段|维持/.test(insightHtml));
+
+    // 回到活动管理页，后续断言依赖该页面的按钮与表单
+    await win.__boot.navigate('teacher-home');
+    await wait(400);
+
     // 造一条带报名的活动，再打开名单弹窗（保证表格渲染出来）
     const made = await api('/api/activity', {
       method: 'POST', token,
       body: { title: 'UI 渲染校验活动', type: '讲座培训', content: '校验名单表格', place: 'C301', start_time: '2030-03-01 09:00', end_time: '2030-03-01 11:00', max_num: 2, eligibility_rule: '计算机' }
     });
     const studentLogin = await api('/api/auth/login', { method: 'POST', body: { username: '2021001', password: '123456' } });
-    await api('/api/activity/' + made.data.id + '/join', { method: 'POST', token: studentLogin.data.token });
+    // force: 本用例验证的是名单表格渲染，反复运行会与上次创建的同类活动时间重叠，
+    // 若不跳过冲突检测，报名会被拦截导致名单为空。
+    await api('/api/activity/' + made.data.id + '/join', { method: 'POST', token: studentLogin.data.token, body: { force: true } });
     win.__boot.showSignupList(made.data.id);
     await wait(600);
     const html = win.document.body.innerHTML;

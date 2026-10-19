@@ -6,9 +6,9 @@ const Student = {
         const list = await this.getMySignups();
         return list.some(activity => String(activity.id) === String(activityId));
     },
-    async signup(activityId, requestId) {
-        try { return { success: true, data: await Api.join(activityId, requestId) }; }
-        catch (error) { return { success: false, message: error.message || '报名失败' }; }
+    async signup(activityId, requestId, force) {
+        try { return { success: true, data: await Api.join(activityId, requestId, force) }; }
+        catch (error) { return { success: false, message: error.message || '报名失败', code: error.code, data: error.data }; }
     },
     async cancelSignup(activityId, payload) {
         try { return { success: true, data: await Api.cancel(activityId, payload) }; }

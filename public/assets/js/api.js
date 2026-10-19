@@ -11,7 +11,14 @@ const Api = {
     let body;
     try { body = await res.json(); }
     catch { throw new Error(`服务器返回了无效响应（HTTP ${res.status}）`); }
-    if (body.code !== 200) throw new Error(body.msg || this.httpMessage(res.status));
+    if (body.code !== 200) {
+      /* V3.0 能力扩展：失败响应可能携带结构化数据（如时间冲突详情），
+       * 挂在 error 上供调用方展示，不再只剩一句文案。 */
+      const error = new Error(body.msg || this.httpMessage(res.status));
+      error.code = body.code;
+      error.data = body.data;
+      throw error;
+    }
     return body.data;
   },
   httpMessage(status) { return status === 404 ? '接口不存在，请检查后端版本' : status === 500 ? '服务器内部错误，请查看后端控制台' : `请求失败（HTTP ${status}）`; },
@@ -37,7 +44,7 @@ const Api = {
   list: params => Api.request(`/activity/list?${new URLSearchParams(params)}`),
   detail: id => Api.request(`/activity/${id}`),
   myJoin: () => Api.request('/activity/myjoin'),
-  join: (id, requestId) => Api.request(`/activity/${id}/join`, { method: 'POST', body: JSON.stringify({ requestId }) }),
+  join: (id, requestId, force) => Api.request(`/activity/${id}/join`, { method: 'POST', body: JSON.stringify({ requestId, force: force === true }) }),
   cancel: (id, payload) => Api.request(`/activity/${id}/join`, { method: 'DELETE', body: JSON.stringify(payload || {}) }),
   confirmSeat: id => Api.request(`/activity/${id}/confirm`, { method: 'POST' }),
   myActivities: () => Api.request('/activity/my'),
@@ -71,5 +78,12 @@ const Api = {
 
   /* ===== V3.0 运行数据 ===== */
   adminMetrics: (days = 7) => Api.request(`/admin/metrics?days=${days}`),
-  adminEvents: params => Api.request(`/admin/events?${new URLSearchParams(params || {})}`)
+  adminEvents: params => Api.request(`/admin/events?${new URLSearchParams(params || {})}`),
+
+  /* ===== V3.0 能力扩展：消息、日程、教师效果 ===== */
+  messages: () => Api.request('/messages'),
+  markMessagesRead: id => Api.request('/messages/read', { method: 'POST', body: JSON.stringify({ id: id || 0 }) }),
+  unreadCount: () => Api.request('/messages/unread'),
+  schedule: weekStart => Api.request('/schedule' + (weekStart ? `?weekStart=${encodeURIComponent(weekStart)}` : '')),
+  teacherInsights: () => Api.request('/teacher/insights')
 };
