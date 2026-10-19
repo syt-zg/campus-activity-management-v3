@@ -130,7 +130,31 @@
 
 - **未做真实数据量压力测试**：60 并发只是机制验证，不代表生产容量；
   本机微基准只证明"写入次数下降"，不证明"高并发下一定不超时"。
-- **未在打包后的 Electron 版本中复测**：本轮验证的是 `node src/app.js` 服务模式。
+- **打包版只做到启动级验证**：已从 asar 解包并实际启动，`/api/health` 返回 `version=V3.0`、
+  管理员账号可登录；但三角色界面流程未逐一手工回归。自动化测试覆盖的是服务层与前端渲染，
+  不完全等价于打包后的真实点击路径。
 - **模拟数据与业务效果无关联**：教师数据的 850ms 是其平台表现，不能当作本系统实测；
   本系统性能以第三节的对比为准。
 - **取消原因枚举缺乏数据支撑**：数据包无取消原因字段，该枚举属假设，见 `analysis/字段映射.md`。
+
+## 六、Git 仓库推送校验
+
+仓库：`https://github.com/syt-zg/campus-activity-management-v3`（公开）
+
+推送后核对远端与本地是否一致：
+
+```text
+$ git ls-remote origin
+48c29c93baec73dd4f1e167ded22c2e620c30fa3        HEAD
+48c29c93baec73dd4f1e167ded22c2e620c30fa3        refs/heads/master
+
+$ git rev-parse HEAD
+48c29c93baec73dd4f1e167ded22c2e620c30fa3
+```
+
+三个 SHA 完全相同，说明远端分支指向与本地一致，10 次提交已全部上传
+（GitHub commits API 分页 `rel="last"` 页为 10，与 `git rev-list --count HEAD` 相符）。
+
+补充说明：本机环境变量中存在 `http_proxy`，推送时若出现
+`CONNECT tunnel failed, response 502`，需加 `-c http.proxy= -c https.proxy=` 绕过；
+该问题已记入 `docs/GIT-提交说明.md` 第二节，供后续维护者参考。

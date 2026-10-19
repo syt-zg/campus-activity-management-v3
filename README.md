@@ -73,12 +73,18 @@ node tests/ui-render.js http://127.0.0.1:3000   # 前端渲染 20 项（需先�
 ## 五、Git 仓库地址
 
 ```text
-【待填：可访问的 Git 仓库地址】
+https://github.com/syt-zg/campus-activity-management-v3
 ```
 
-本地仓库已初始化（`source/.git`，从 V2.0 基线开始分阶段提交），
-推送步骤见 [`docs/GIT-提交说明.md`](docs/GIT-提交说明.md)。
-**这一项必须由本组提供远程地址后才算完成提交要求。**
+公开仓库，无需登录即可访问。克隆：
+
+```bash
+git clone https://github.com/syt-zg/campus-activity-management-v3.git
+```
+
+仓库从 V2.0 基线开始分阶段提交，共 10 次提交；评审可执行
+`git diff 9231ee0 HEAD --stat` 查看 V2.0 → V3.0 的完整改动，
+详见 [`docs/GIT-提交说明.md`](docs/GIT-提交说明.md)。
 
 ## 六、边界说明
 

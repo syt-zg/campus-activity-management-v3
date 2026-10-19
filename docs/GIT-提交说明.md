@@ -3,39 +3,50 @@
 > 对应实验要求「六、实验提交内容」第 1 条：**附运行说明及可访问的 Git 仓库地址**。
 > 运行说明见 `README.md` 与 `源代码说明.txt`；本文件说明仓库状态、提交历史与推送步骤。
 
-## 一、当前状态（必须补的一步）
+## 一、当前状态
 
 ```text
-本地仓库：已初始化，分支 master，工作区干净（完整历史用 `git log --oneline` 查看）
-远程仓库：尚未配置  ← 提交要求中的"可访问的 Git 仓库地址"依赖这一步
+仓库地址：https://github.com/syt-zg/campus-activity-management-v3
+本地仓库：分支 master，工作区干净（完整历史用 `git log --oneline` 查看）
+远程仓库：已推送，远端 refs/heads/master 与本地 HEAD 一致（48c29c9）
+访问权限：公开，评阅无需登录
 ```
 
-**这一步只能由本组完成**（需要你们的 GitHub / Gitee / 学校 GitLab 账号）。
-推送完成后，把仓库地址填到 `README.md` 第五节和交付目录的 `交付说明.txt` 里。
-
-## 二、推送步骤（三行命令）
-
-在 `source` 目录执行，`<URL>` 替换为你们新建的空仓库地址：
+本地 `git remote -v` 即为该地址，克隆方式：
 
 ```bash
-git remote add origin <URL>
-git push -u origin master
-git remote -v          # 确认地址已生效
+git clone https://github.com/syt-zg/campus-activity-management-v3.git
+```
+
+## 二、推送记录与后续更新
+
+首次推送已完成（`git push -u origin master`，10 次提交全量上传，
+`git ls-remote` 校验远端 HEAD 与本地一致）。之后如需继续提交：
+
+```bash
+git add -A
+git commit -m "类型(范围): 说明"
+git push
 ```
 
 注意：
 
-- 仓库建成**空仓库**再推（不要勾选自动生成 README，否则要先 `git pull --rebase`）。
-- 公开或私有均可，私有仓库需给评审批次访问权限，否则不算"可访问"。
-- 如果学校要求分支名为 `main`：`git branch -M main` 后再推送。
+- 本机环境变量里存在 `http_proxy`，若推送报 `CONNECT tunnel failed, response 502`，
+  说明请求被代理拦截，加 `-c http.proxy= -c https.proxy=` 绕过即可：
+  ```bash
+  git -c http.proxy= -c https.proxy= push
+  ```
+- 仓库是**公开**的，确保不把 `node_modules/`、打包产物、含真实个人信息的运行数据提交上去
+  （`.gitignore` 已覆盖前三类）。
 
-### 附：没有远程仓库时的过渡方案（git bundle）
+### 附：离线备份（git bundle）
 
-交付目录里额外提供了 `source-history.bundle`（约 770 KB），
-它是**一个文件里装下完整提交历史**的 Git 包，可在任何平台导入：
+远程仓库已可用，这一节保留为**离线备份与迁移手段**：
+交付目录里的 `source-history.bundle`（约 770 KB）把完整提交历史封装进单个文件，
+不依赖网络，可在任何平台的仓库中还原：
 
 ```bash
-# 1) 在托管平台新建空仓库后
+# 1) 新建空仓库后克隆
 git clone <空仓库地址> campus-v3 && cd campus-v3
 
 # 2) 把 bundle 里的历史拉进来
@@ -46,7 +57,7 @@ git push -u origin master
 ```
 
 校验完整性：`git bundle verify ../source-history.bundle` → 应显示 "records a complete history"。
-这样即使暂时没有仓库，提交历史也不会丢，之后随时可以补推。
+用途有两个：远程仓库万一不可访问时，历史仍在手上；换托管平台时可直接迁移，不必重新提交。
 
 ## 三、提交历史（评审可直接核对，下表为主要节点）
 
