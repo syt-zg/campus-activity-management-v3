@@ -8,8 +8,15 @@
 ```text
 仓库地址：https://github.com/syt-zg/campus-activity-management-v3
 本地仓库：分支 master，工作区干净（完整历史用 `git log --oneline` 查看）
-远程仓库：已推送，远端 refs/heads/master 与本地 HEAD 一致（48c29c9）
+远程仓库：已推送，远端 refs/heads/master 与本地 HEAD 一致
 访问权限：公开，评阅无需登录
+```
+
+核对一致性（任何时刻可复跑）：
+
+```bash
+git rev-parse HEAD                      # 本地 HEAD
+git ls-remote origin refs/heads/master  # 远端 master，两者应相同
 ```
 
 本地 `git remote -v` 即为该地址，克隆方式：
@@ -20,7 +27,7 @@ git clone https://github.com/syt-zg/campus-activity-management-v3.git
 
 ## 二、推送记录与后续更新
 
-首次推送已完成（`git push -u origin master`，10 次提交全量上传，
+首次推送已完成（`git push -u origin master`，全部历史提交一次性上传，
 `git ls-remote` 校验远端 HEAD 与本地一致）。之后如需继续提交：
 
 ```bash

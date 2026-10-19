@@ -143,17 +143,13 @@
 
 推送后核对远端与本地是否一致：
 
-```text
-$ git ls-remote origin
-48c29c93baec73dd4f1e167ded22c2e620c30fa3        HEAD
-48c29c93baec73dd4f1e167ded22c2e620c30fa3        refs/heads/master
-
-$ git rev-parse HEAD
-48c29c93baec73dd4f1e167ded22c2e620c30fa3
+```bash
+git ls-remote origin refs/heads/master   # 远端 master 指向
+git rev-parse HEAD                       # 本地 HEAD，两者应完全相同
 ```
 
-三个 SHA 完全相同，说明远端分支指向与本地一致，10 次提交已全部上传
-（GitHub commits API 分页 `rel="last"` 页为 10，与 `git rev-list --count HEAD` 相符）。
+两个 SHA 相同，即说明远端分支与本地一致、全部提交已上传。
+首次推送后已核对通过，且 GitHub commits API 的分页总数与 `git rev-list --count HEAD` 相符。
 
 补充说明：本机环境变量中存在 `http_proxy`，推送时若出现
 `CONNECT tunnel failed, response 502`，需加 `-c http.proxy= -c https.proxy=` 绕过；

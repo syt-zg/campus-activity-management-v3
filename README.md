@@ -82,8 +82,8 @@ https://github.com/syt-zg/campus-activity-management-v3
 git clone https://github.com/syt-zg/campus-activity-management-v3.git
 ```
 
-仓库从 V2.0 基线开始分阶段提交，共 10 次提交；评审可执行
-`git diff 9231ee0 HEAD --stat` 查看 V2.0 → V3.0 的完整改动，
+仓库从 V2.0 基线（`9231ee0`）开始分阶段提交，本次交付的最新提交以
+`git log -1` 为准；评审可执行 `git diff 9231ee0 HEAD --stat` 查看 V2.0 → V3.0 的完整改动，
 详见 [`docs/GIT-提交说明.md`](docs/GIT-提交说明.md)。
 
 ## 六、边界说明
