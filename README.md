@@ -13,9 +13,9 @@
 **方式 B：从源码运行**
 
 ```bash
-cd source
-pnpm install
-node src/app.js          # 浏览器打开 http://127.0.0.1:3000
+# 在仓库根目录（含 package.json 的目录）执行
+npm install
+npm run start            # 等价于 node src/app.js，浏览器打开 http://127.0.0.1:3000
 ```
 
 **默认账号**（初始密码均为 `123456`）

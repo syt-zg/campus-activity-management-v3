@@ -5,7 +5,13 @@
   "author": "校园活动管理系统项目组",
   "main": "electron/main.js",
   "scripts": {
-    "build:portable": "electron-builder --win portable --x64"
+    "start": "node src/app.js",
+    "dev:electron": "electron .",
+    "test": "node tests/v3-smoke.js",
+    "test:ui": "node tests/ui-render.js",
+    "test:perf": "node tests/perf-compare.js",
+    "build:portable": "electron-builder --win portable --x64",
+    "build:installer": "electron-builder --win nsis --x64"
   },
   "devDependencies": {
     "electron": "38.8.6",

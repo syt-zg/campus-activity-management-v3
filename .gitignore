@@ -6,3 +6,9 @@ data/*.backup
 data/*.old
 data/*.tmp
 data/*.corrupt-*.bak
+
+# 本项目统一使用 npm，不使用 pnpm / yarn。
+# 若目录里存在 pnpm-lock.yaml，electron-builder 会误判包管理器并调用 pnpm 导致构建失败。
+pnpm-lock.yaml
+pnpm-workspace.yaml
+yarn.lock
