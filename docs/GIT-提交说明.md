@@ -57,6 +57,7 @@ git push -u origin master
 | `7dc141c` | 2026-10-18 21:06 | `docs(v3): 变更说明、验证记录、测试脚本与源代码说明` | 4 文件 / +454 −6 |
 | `c32efe8` | 2026-10-18 21:20 | `feat(v3.1): 对照模拟数据包的数据驱动调整` —— 数据发现报告、错峰开放、请求幂等、写入合并、候补深度提示 | 23 文件 / +17051 −60 |
 | `e43f95b` 及其后 | 2026-10-18 21:48 起 | `docs: 补齐提交要求缺口` 等文档同步提交 —— README 总入口、AI 使用说明、Git 提交说明，jsdom 缺失时优雅跳过 | 5 文件 |
+| `5e69ddd` | 2026-10-19 18:45 | `fix: 移除误导构建的 pnpm 产物，补齐脚本与运行说明` —— 删掉 `pnpm-lock.yaml`（它会让 electron-builder 误判包管理器并调用 pnpm，源码构建直接失败）、补齐 `start` / `test` / `build:installer` 脚本、README 改为 npm 步骤 | 5 文件 / +16 −2801 |
 
 **为什么第一步是"V2.0 基线"**：只有这样，"主要修改过程"才是可对比的 ——
 评审用 `git diff 9231ee0 c32efe8` 就能看到 V2.0 → V3.0 的全部改动，
@@ -80,10 +81,12 @@ git log --oneline -- public/        # 只看界面改动
 | `chore` | 基线、构建、杂项 |
 | `feat` | 新增功能 |
 | `docs` | 文档 |
-| `fix` | 缺陷修复（本轮未单独使用，修复内容并入 feat 提交并在正文说明） |
+| `fix` | 缺陷修复（交付前的构建可用性修复单独成一次提交，见 `5e69ddd`） |
 
 ## 六、仓库里没有的东西（刻意排除）
 
-`.gitignore` 已排除：`node_modules/`、`release-single/`、`*.log`、`data/*.backup`。
+`.gitignore` 已排除：`node_modules/`、`release-single/`、`*.log`、`data/*.backup`，
+以及 `pnpm-lock.yaml` / `pnpm-workspace.yaml` / `yarn.lock`（本项目统一用 npm，
+残留的 pnpm 锁文件会让 electron-builder 误判包管理器）。
 打包产物（exe）不进仓库，随交付目录一起提交即可；`analysis/data/` 里的教师模拟数据
 是只读的分析输入，保留在仓库中以支撑"关键分析依据可复核"。
